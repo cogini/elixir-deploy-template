@@ -1,0 +1,7 @@
+{{ app_user }} ALL=(ALL) NOPASSWD: /bin/systemctl start {{ app_name }}, /bin/systemctl stop {{ app_name }}, /bin/systemctl restart {{ app_name }}, /bin/systemctl status {{ app_name }}
+{{ app_user }} ALL=(ALL) NOPASSWD: /sbin/initctl restart bounce, /sbin/initctl start bounce, /sbin/initctl stop bounce
+Defaults:{{ app_user }} !requiretty
+
+{{ deploy_user }} ALL=(ALL) NOPASSWD: /bin/systemctl start {{ app_name }}, /bin/systemctl stop {{ app_name }}, /bin/systemctl restart {{ app_name }}, /bin/systemctl status {{ app_name }}
+{{ deploy_user }} ALL=(ALL) NOPASSWD: /sbin/initctl restart bounce, /sbin/initctl start bounce, /sbin/initctl stop bounce
+Defaults:{{ deploy_user }} !requiretty

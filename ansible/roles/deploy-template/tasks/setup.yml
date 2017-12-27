@@ -1,0 +1,42 @@
+---
+# These tasks are used for initial installation
+
+# - name: create limits config
+#   # Increase allowed open files
+#   # systemd ignores /etc/security/limits, though, so set it in the systemd unit file as well
+#   template: src=etc/security/limits.d/user-limits.j2 dest=/etc/security/limits.d/95-{{ app_user }}-{{ app_name }}.conf
+
+- name: Create deploy dirs
+  file: path={{ item }} state=directory owner={{ deploy_user }} group={{ deploy_group }} mode=0755
+  with_items:
+    - "{{ deploy_dir }}"
+    - "{{ releases_dir }}"
+    #- "{{ scripts_dir }}"
+
+- name: Create app dirs
+  file: path={{ item }} state=directory owner={{ app_user }} group={{ app_group }} mode=0755
+  with_items:
+    - "{{ conf_dir }}"
+    - "{{ log_dir }}"
+    # - "{{ temp_dir }}"
+    # - "{{ temp_data_dir }}"
+    # - "{{ var_dir }}"
+    # - "{{ data_dir }}"
+    # - "{{ state_dir }}"
+
+- name: Create sudoers config for app user
+  template: src=etc/sudoers.d/app.j2 dest=/etc/sudoers.d/{{ app_user }}-{{ app_name }} owner=root group=root mode=0600
+
+- name: Create systemd unit
+  template: src=lib/systemd/system/app.service.j2 dest=/lib/systemd/system/{{ app_name }}.service owner=root group=root mode=0644
+  register: systemd_unit
+  when: "ansible_service_mgr == 'systemd' or (ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7')"
+
+- name: Reload systemd
+  command: /bin/systemctl daemon-reload
+  when: systemd_unit|changed
+
+- name: Start and enable service
+  service: name={{ app_name }} state=started enabled=yes
+  environment:
+    PATH: /sbin:{{ ansible_env.PATH }}

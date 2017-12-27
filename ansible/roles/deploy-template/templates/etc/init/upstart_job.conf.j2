@@ -1,0 +1,38 @@
+description "{{ app_name }} server"
+
+start on runlevel [2345]
+stop on runlevel [06]
+
+#expect stop
+respawn
+
+limit nofile 65536 65536
+#limit nofile unlimited unlimited
+
+env LANG=en_US.UTF-8
+export LANG
+
+env MIX_ENV=prod
+export MIX_ENV
+
+## Uncomment the following two lines if we configured
+## our port with an environment variable.
+#env PORT=8888
+#export PORT
+
+env RELEASE_MUTABLE_DIR={{ temp_dir }}
+export RELEASE_MUTABLE_DIR
+
+script
+# This logs output from the script, useful for debugging startup problems
+# exec 1>>/var/log/{{ app_name }}/upstart.log 2>&1 su -s /bin/sh -c 'exec "$0" "$@"' {{ app_user }} -- /opt/{{ app_user }}/{{ app_name }}/current/bin/{{ app_name_code }} foreground
+# This does not log
+exec su -s /bin/sh -c 'exec "$0" "$@"' {{ app_user }} -- /opt/{{ app_user }}/{{ app_name }}/current/bin/{{ app_name_code }} foreground
+end script
+
+
+#pre-start exec su -s /bin/sh -c 'exec "$0" "$@"' {{ app_user }} -- /opt/{{ app_user }}/{{ app_name }}/current/bin/{{ app_name_code }} start
+#post-stop exec su -s /bin/sh -c 'exec "$0" "$@"' {{ app_user }} -- /opt/{{ app_user }}/{{ app_name }}/current/bin/{{ app_name_code }} stop
+
+#pre-start exec /usr/bin/sudo /opt/{{ app_user }}/{{ app_name }}/current/bin/{{ app_name_code }} start
+#post-stop exec /usr/bin/sudo /opt/{{ app_user }}/{{ app_name }}/current/bin/{{ app_name_code }} stop

@@ -1,0 +1,26 @@
+---
+app_name: deploy-template
+app_name_code: deploy_template
+app_version: "0.1.0"
+app_env: prod
+org: myorg
+
+app_user: foo
+app_group: foo
+
+deploy_user: deploy
+deploy_group: deploy
+
+conf_dir: /etc/{{ app_name }}
+
+log_dir: /var/log/{{ app_name }}
+deploy_dir: /opt/{{ org }}/{{ app_name }}
+releases_dir: "{{ deploy_dir }}/releases"
+scripts_dir: "{{ deploy_dir }}/scripts"
+temp_dir: /var/tmp/{{ org }}/{{ app_name }}
+temp_data_dir: "{{ temp_dir }}/data"
+var_dir: /var/{{ org }}/{{ app_name }}
+data_dir: "{{ var_dir }}/data"
+state_dir: "{{ var_dir }}/state"
+
+base_dir: /home/{{ app_user}}/data

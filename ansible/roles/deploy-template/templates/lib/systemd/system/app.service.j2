@@ -1,0 +1,33 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description={{ app_name }} server
+After=local-fs.target network.target
+# Requires=metadata.service sync-conf.service
+# Wants=metadata.service sync-conf.service
+
+[Service]
+# Type=simple # the default
+User={{ app_user }}
+Group={{ app_group }}
+WorkingDirectory=/opt/{{ app_user }}/{{ app_name }}/current
+ExecStart=/opt/{{ app_user }}/{{ app_name }}/current/bin/{{ app_name }} foreground
+Environment=LANG=en_US.UTF-8
+Environment=MIX_ENV=prod
+Environment=RELEASE_MUTABLE_DIR={{ temp_dir }}
+# Environment=PORT=8080
+# Environment=RUNNER_LOG_DIR={{ log_dir }}
+# systemd ignores /etc/security/limits
+LimitNOFILE=65536
+Restart=always
+
+# From distillery https://hexdocs.pm/distillery/use-with-systemd.html
+# Restart=on-failure
+# KillMode=process # default control-group
+# SuccessExitStatus=143
+# TimeoutSec=10
+# RestartSec=5 # default 100ms
+# SyslogIdentifier=bounce # default process name
+
+[Install]
+WantedBy=multi-user.target

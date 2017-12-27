@@ -1,0 +1,8 @@
+---
+# tasks file for log-receiver
+- include_tasks: setup.yml
+  become: true
+
+- import_tasks: deploy.yml
+  become: false
+  tags: ['deploy']

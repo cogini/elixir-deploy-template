@@ -1,0 +1,16 @@
+---
+# Set up ssl certs
+
+- name: Create ssl dir
+  file: path={{ ssl_dir }} state=directory owner={{ app_user }} group={{ app_group }} mode=0700
+
+- name: Install Kafka SSL CA cert
+  copy: src=ssl/kafka.ca.cert.pem dest={{ ssl_dir }}/kafka.ca.cert.pem owner={{ app_user }} group={{ app_group }} mode=0644
+
+- name: Install Kafka SSL cert
+  copy: src=ssl/kafka.cert.pem dest={{ ssl_dir }}/kafka.cert.pem owner={{ app_user }} group={{ app_group }} mode=0644
+
+- name: install Kafka SSL key
+  copy: content={{ bounce_kafka_ssl_key_data }} dest={{ ssl_dir }}/kafka.key.pem owner={{ app_user }} group={{ app_group }} mode=0600
+  when: bounce_kafka_ssl_key_data is defined
+  no_log: true
