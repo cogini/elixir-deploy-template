@@ -1,5 +1,8 @@
 # DeployTemplate
 
+This is a complete example of deploying an Elixir app based on
+this [blog post](https://www.cogini.com/blog/best-practices-for-deploying-elixir-apps/).
+
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
