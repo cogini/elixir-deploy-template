@@ -30,13 +30,14 @@ environment :dev do
   # dev mode.
   set dev_mode: true
   set include_erts: false
-  set cookie: :"P@dZ!ft&N|Ekz[%r<.Oe8q3CMNHMB&R~4}GxtkOd$T_MZ,w,jXK7W/Q8OD*Eq80w"
+  set cookie: :crypto.strong_rand_bytes(32) |> Base.encode16 |> String.to_atom
 end
 
 environment :prod do
   set include_erts: true
   set include_src: false
-  set cookie: :",PWv9[8>kp^X`?!F@Flv8q/n7LTD;G.DTsr]{f}}{6U>)w;Y|.B`z5eUcZN@/:7?"
+  set cookie: :crypto.strong_rand_bytes(32) |> Base.encode16 |> String.to_atom
+  set vm_args: "rel/vm.args.eex"
 end
 
 # You may define one or more releases in this file.
@@ -50,4 +51,3 @@ release :deploy_template do
     :runtime_tools
   ]
 end
-
