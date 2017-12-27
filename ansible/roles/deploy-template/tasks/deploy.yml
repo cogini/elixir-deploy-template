@@ -1,7 +1,12 @@
 ---
-- set_fact: release_file={{ role_path }}/../../../_build/{{ app_env }}/rel/{{ app_name_code }}/releases/{{ app_version }}/{{ app_name_code }}.tar.gz
+# tasks file for deploy-template/deploy
+#
+# These tasks deploy the app. They are run under the deploy user account.
 
-- name: Create release dir
+- name: Find release file
+  set_fact: release_file={{ role_path }}/../../../_build/{{ app_env }}/rel/{{ app_name_code }}/releases/{{ app_version }}/{{ app_name_code }}.tar.gz
+
+- name: Create versioned release dir
   file: path={{ releases_dir }}/{{ ansible_date_time['iso8601_basic_short'] }} state=directory mode=0755
 
 - name: Upload release
@@ -10,7 +15,7 @@
 - name: Create current symlink
   file: src={{ releases_dir }}/{{ ansible_date_time['iso8601_basic_short'] }} dest={{ deploy_dir }}/current state=link
 
-- name: Fix permissions on release scripts
+- name: Set permissions on release scripts
   file: path={{ item.path }} mode=0755 owner={{ deploy_user }} group={{ deploy_group }}
   with_items:
     - path: "{{ deploy_dir }}/current/bin/{{ app_name_code }}"

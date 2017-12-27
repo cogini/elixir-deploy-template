@@ -1,26 +1,59 @@
 ---
-app_name: deploy-template
-app_name_code: deploy_template
-app_version: "0.1.0"
-app_env: prod
+# A unique prefix for our directories
+# This could be your organization or the overall project
 org: myorg
 
-app_user: foo
-app_group: foo
+# The external name of the app, used to name directories and the systemd process
+app_name: deploy-template
+# The internal "Elixir" name of the app, used to by Distillery to name directories
+app_name_code: deploy_template
+# Version of the app in the release
+app_version: "0.1.0"
+# App environment
+app_env: prod
 
+# OS user that deploys / owns the release files
 deploy_user: deploy
+# OS group that deploys / owns the release files
 deploy_group: deploy
 
+# OS user that the app runs under
+app_user: foo
+# OS group that the app runs under
+app_group: foo
+
+# Location of per-machine config files
 conf_dir: /etc/{{ app_name }}
 
+# Location of runtime logs
 log_dir: /var/log/{{ app_name }}
+
+# Base directory for deploy files
 deploy_dir: /opt/{{ org }}/{{ app_name }}
 releases_dir: "{{ deploy_dir }}/releases"
-scripts_dir: "{{ deploy_dir }}/scripts"
-temp_dir: /var/tmp/{{ org }}/{{ app_name }}
-temp_data_dir: "{{ temp_dir }}/data"
-var_dir: /var/{{ org }}/{{ app_name }}
-data_dir: "{{ var_dir }}/data"
-state_dir: "{{ var_dir }}/state"
 
-base_dir: /home/{{ app_user}}/data
+# Location of runtime scripts, e.g. used in cron jobs
+scripts_dir: "{{ deploy_dir }}/scripts"
+
+# Location for app temp files
+temp_dir: /var/tmp/{{ org }}/{{ app_name }}
+
+# Base directory for app data
+var_dir: /var/{{ org }}/{{ app_name }}
+
+# Location of app data files
+data_dir: "{{ var_dir }}/data"
+
+# Dirs owned by the deploy user
+deploy_dirs:
+  - "{{ deploy_dir }}"
+  - "{{ releases_dir }}"
+  - "{{ conf_dir }}"
+  #- "{{ scripts_dir }}"
+
+# Dirs owned by the app user
+app_dirs:
+  - "{{ log_dir }}"
+  - "{{ temp_dir }}"
+  # - "{{ var_dir }}"
+  # - "{{ data_dir }}"

@@ -12,7 +12,7 @@ limit nofile 65536 65536
 env LANG=en_US.UTF-8
 export LANG
 
-env MIX_ENV=prod
+env MIX_ENV={{ app_env }}
 export MIX_ENV
 
 ## Uncomment the following two lines if we configured
@@ -24,15 +24,7 @@ env RELEASE_MUTABLE_DIR={{ temp_dir }}
 export RELEASE_MUTABLE_DIR
 
 script
+exec su -s /bin/sh -c 'exec "$0" "$@"' {{ app_user }} -- {{ deploy_dir }}/current/bin/{{ app_name_code }} foreground
 # This logs output from the script, useful for debugging startup problems
-# exec 1>>/var/log/{{ app_name }}/upstart.log 2>&1 su -s /bin/sh -c 'exec "$0" "$@"' {{ app_user }} -- /opt/{{ app_user }}/{{ app_name }}/current/bin/{{ app_name_code }} foreground
-# This does not log
-exec su -s /bin/sh -c 'exec "$0" "$@"' {{ app_user }} -- /opt/{{ app_user }}/{{ app_name }}/current/bin/{{ app_name_code }} foreground
+# exec 1>>{{ log_dir }}/upstart.log 2>&1 su -s /bin/sh -c 'exec "$0" "$@"' {{ app_user }} -- {{ deploy_dir }}/current/bin/{{ app_name_code }} foreground
 end script
-
-
-#pre-start exec su -s /bin/sh -c 'exec "$0" "$@"' {{ app_user }} -- /opt/{{ app_user }}/{{ app_name }}/current/bin/{{ app_name_code }} start
-#post-stop exec su -s /bin/sh -c 'exec "$0" "$@"' {{ app_user }} -- /opt/{{ app_user }}/{{ app_name }}/current/bin/{{ app_name_code }} stop
-
-#pre-start exec /usr/bin/sudo /opt/{{ app_user }}/{{ app_name }}/current/bin/{{ app_name_code }} start
-#post-stop exec /usr/bin/sudo /opt/{{ app_user }}/{{ app_name }}/current/bin/{{ app_name_code }} stop

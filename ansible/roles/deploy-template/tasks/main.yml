@@ -1,5 +1,6 @@
 ---
-# tasks file for log-receiver
+# tasks file for deploy-template
+
 - include_tasks: setup.yml
   become: true
 
