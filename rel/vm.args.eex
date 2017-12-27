@@ -1,0 +1,18 @@
+## Name of the node
+-name <%= release_name %>@127.0.0.1
+
+## Cookie for distributed erlang
+-setcookie <%= release.profile.cookie %>
+
+## Enable kernel poll and a few async threads
++K true
++A 128
+
+## Increase number of concurrent ports/sockets
+-env ERL_MAX_PORTS 65536
+
+## Tweak GC to run more often
+##-env ERL_FULLSWEEP_AFTER 10
+
+# Enable SMP automatically based on availability
+-smp auto
