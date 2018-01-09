@@ -14,10 +14,11 @@
 
 - name: Create sudoers config for deploy user
   template: src=etc/sudoers.d/app.j2 dest=/etc/sudoers.d/{{ deploy_user }}-{{ app_name }} owner=root group=root mode=0600
+  when: "app_restart_method == 'systemctl'"
 
 - name: Create systemd unit
   template: src=lib/systemd/system/app.service.j2 dest=/lib/systemd/system/{{ app_name }}.service owner=root group=root mode=0644
-- notify: systemctl daemon-reload
+  notify: systemctl daemon-reload
   when: "ansible_service_mgr == 'systemd' or (ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7')"
 
 - name: Start and enable service

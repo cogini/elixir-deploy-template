@@ -57,3 +57,7 @@ app_dirs:
   - "{{ temp_dir }}"
   # - "{{ var_dir }}"
   # - "{{ data_dir }}"
+
+app_restart_method: systemctl
+# app_restart_method: touch
+app_flag_file: "{{ temp_dir }}/restart.flag"
