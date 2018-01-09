@@ -1,7 +1,47 @@
 # DeployTemplate
 
-This is a complete example of deploying an Elixir app based on
-this [blog post](https://www.cogini.com/blog/best-practices-for-deploying-elixir-apps/).
+This is an example of deploying an Elixir app based on this
+[blog post](https://www.cogini.com/blog/best-practices-for-deploying-elixir-apps/).
+
+Here are the steps used to set it up:
+
+## Generate app
+
+It all began with a Phoenix generator:
+
+    mix phx.new --no-brunch --no-ecto deploy_template
+
+## Set up distillery
+
+Generate initial `rel` files:
+
+    mix release.init
+
+Modify `rel/config.exs` to use random cookie and tune VM with `vm.args.eex` file.
+
+## Set up ASDF
+
+Add `.tool-versions` file to specify versions of Elixir and Erlang.
+
+## Add mix tasks for deploy.local
+
+Add `lib/mix/tasks/deploy.ex`
+
+## Set up Conform
+
+TODO
+
+- Set up Conform
+
+## Add Ansible
+
+Add Ansible tasks to set up the server and deploy code.
+
+TODO
+
+Set up versioned static assets
+Add example for CodeDeploy
+
 
 To start your Phoenix server:
 
