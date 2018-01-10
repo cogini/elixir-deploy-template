@@ -1,0 +1,34 @@
+# Manage users
+#
+# On a physical server where we start with a root account and no ssh keys, we need
+# to bootstrap the server the first time, specifying the password with -k.
+# 
+# ansible-playbook -k -u root -v -l web-server-01 playbooks/manage-users.yml --extra-vars "ansible_host=123.45.67.89"
+# 
+# On macOS the -k command requires the askpass utility, which is not installed by
+# default, so it falls back to paramiko, which doesn't understand `.ssh/config`,
+# so we specify `ansible_host` manually.
+# 
+# On following runs, after the admin users are set up, use:
+# 
+# ansible-playbook -u $USER -v -l web-server-01 playbooks/manage-users.yml
+#
+# ansible-playbook -i web-server-01, -u $USER -v -l web-server-01 playbooks/manage-users.yml -D
+
+- name: Manage users
+  hosts: '*'
+  vars:
+    users_app_user: foo
+    users_app_group: foo
+    users_deploy_user: deploy
+    users_deploy_group: deploy
+    users_users:
+      - user: jake
+        name: "Jake Morrison"
+        github: reachfh
+    users_app_users:
+      - jake
+    users_deploy_users:
+      - jake
+  roles:
+    - { role: cogini.users, become: true }
