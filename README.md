@@ -37,6 +37,8 @@ TODO
 
 Add Ansible tasks to set up the server and deploy code.
 
+    ansible-galaxy install --roles-path roles.galaxy -r install_roles.yml
+
 TODO
 
 Set up versioned static assets
