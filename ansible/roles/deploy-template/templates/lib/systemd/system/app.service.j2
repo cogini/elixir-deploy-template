@@ -14,14 +14,20 @@ Environment=LANG=en_US.UTF-8
 Environment=MIX_ENV={{ app_env }}
 Environment=RELEASE_MUTABLE_DIR={{ temp_dir }}
 # Environment=PORT=4001
+# Environment=RUNNER_LOG_DIR={{ log_dir }}
+# systemd ignores /etc/security/limits
 LimitNOFILE=65536
 UMask=0027
 SyslogIdentifier={{ app_name }}
 RestartSec=5 # default 100ms
 TimeoutSec=10
 SuccessExitStatus=143
-KillMode=process
+KillMode=process # default control-group
 Restart=always
+# Restart=on-failure
+RemainAfterExit=no
+
+# From distillery https://hexdocs.pm/distillery/use-with-systemd.html
 
 [Install]
 WantedBy=multi-user.target
