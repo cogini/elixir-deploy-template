@@ -2,11 +2,11 @@
 #
 # Run setup tasks, e.g. installing packages and creating directories. Run this from an admin user with sudo.
 #
-# ansible-playbook -u $USER -v -l app-servers playbooks/deploy-template.yml --skip-tags deploy -D
+# ansible-playbook -u $USER -v -l web-servers playbooks/deploy-template.yml --skip-tags deploy -D
 #
 # Deploy the code. Run this from the app user account on a dev machine.
 #
-# ansible-playbook -u deploy -v -l app-servers playbooks/deploy-template.yml --tags deploy --extra-vars ansible_become=false -D
+# ansible-playbook -u deploy -v -l web-servers playbooks/deploy-template.yml --tags deploy --extra-vars ansible_become=false -D
 #
 
 - hosts: '*'
