@@ -10,6 +10,7 @@
 #
 
 - hosts: '*'
+  become: true
   vars:
     app_user: foo
     app_group: foo
