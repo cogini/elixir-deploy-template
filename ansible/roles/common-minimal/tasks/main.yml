@@ -1,0 +1,24 @@
+---
+# tasks file for roles/common-minimal
+
+- block:
+
+  - name: install epel
+    # yum: name=epel-release state=present
+    yum: name=epel-release state=present update_cache=yes
+
+  - name: Limit number of previous kernels
+    lineinfile:
+      dest: /etc/yum.conf
+      regexp: '^installonly_limit='
+      line: "installonly_limit=2"
+
+  when: ansible_os_family == 'RedHat'
+
+# Install cronic
+- name: create /opt/bin
+  file: path=/opt/bin state=directory mode=0755 owner=root
+
+# http://habilis.net/cronic
+- name: install cronic
+  copy: src=opt/bin/cronic dest=/opt/bin/cronic owner=root group=root mode=0755

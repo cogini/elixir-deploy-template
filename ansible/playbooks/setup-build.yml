@@ -1,0 +1,50 @@
+---
+# Build system setup
+# ansible-playbook -u $USER -v -l elixir-deploy-template playbooks/setup-build.yml -D
+
+- name: install common
+  hosts: '*'
+  become: true
+  gather_facts: true
+  vars:
+    tools_other_packages:
+      # Useful utils
+      - ack
+      - htop
+      - psmisc
+      - wget
+      - vim-enhanced
+      - tmux
+      - git
+
+      # Build deps for Erlang
+      - gcc
+      - glibc-devel
+      - make
+      - ncurses-devel
+      - openssl-devel
+      - autoconf
+      - pam-devel
+      - perl
+
+      # Build deps for Node.js
+      - gpg
+      - perl-Digest-SHA
+
+      # Build deps for ansible
+      - python-devel
+      - python-pip
+      - libffi-devel
+      - openssl-devel
+    tools_other_pip:
+      - ansible
+  roles:
+    - common-minimal
+    - tools-other
+    # - {role: geerlingguy.ntp, become: true}
+    # - network
+    # - {role: iptables, become: true}
+    # - postfix-sender
+    # - java
+    # - cogini.prometheus-rpm
+
