@@ -3,31 +3,58 @@
 #
 # These tasks deploy the app. They are run under the deploy user account.
 
-- name: Find release file
-  set_fact: release_file={{ role_path }}/../../../_build/{{ app_env }}/rel/{{ app_name_code }}/releases/{{ app_version }}/{{ app_name_code }}.tar.gz
+- name: Set vars
+  set_fact:
+    # Location on local filesystem of release files
+    local_release_dir: "{{ role_path }}/../../../_build/{{ app_env }}/rel/{{ app_name_code }}/releases"
+    # Name of target directory
+    release_timestamp: "{{ ansible_date_time['iso8601_basic_short'] }}"
 
-- name: Create versioned release dir
-  file: path={{ releases_dir }}/{{ ansible_date_time['iso8601_basic_short'] }} state=directory mode=0755
+- block:
+  - name: Get release version file
+    set_fact:
+      release_version_file: "{{ local_release_dir }}/start_erl.data"
 
-- name: Upload release
-  unarchive: src={{ release_file }} dest={{ releases_dir }}/{{ ansible_date_time['iso8601_basic_short'] }}
+  - name: Get release version data
+    set_fact:
+      release_version_data: "{{ lookup('file', release_version_file) }}"
 
-- name: Create current symlink
-  file: src={{ releases_dir }}/{{ ansible_date_time['iso8601_basic_short'] }} dest={{ deploy_dir }}/current state=link
+  - name: Get app version
+    set_fact:
+      app_version: "{{ release_version_data.split(' ')[-1] }}"
 
-- name: Set permissions on release scripts
-  file: path={{ item.path }} mode=0755 owner={{ deploy_user }} group={{ deploy_group }}
-  with_items:
-    - path: "{{ deploy_dir }}/current/bin/{{ app_name_code }}"
-    - path: "{{ deploy_dir }}/current/releases/{{ app_version }}/{{ app_name_code }}.sh"
+  when: app_version is not defined
 
-- name: Restart app
+- name: Get local release file
+  set_fact:
+    local_release_file: "{{ local_release_dir }}/{{ app_version }}/{{ app_name_code }}.tar.gz"
+
+- name: Create release dir
+  file: path={{ releases_dir }}/{{ release_timestamp }} state=directory mode=0755
+
+- block:
+  - name: Upload release
+    unarchive: src={{ local_release_file }} dest={{ releases_dir }}/{{ release_timestamp }}
+
+  - name: Create current symlink
+    file: src={{ releases_dir }}/{{ release_timestamp }} dest={{ deploy_dir }}/current state=link
+
+  - name: Set permissions on release scripts
+    file: path={{ item.path }} mode=0755 owner={{ deploy_user }} group={{ deploy_group }}
+    with_items:
+      - path: "{{ deploy_dir }}/current/bin/{{ app_name_code }}"
+      - path: "{{ deploy_dir }}/current/releases/{{ app_version }}/{{ app_name_code }}.sh"
+
+  when: not ansible_check_mode
+
+- name: Restart app using systemctl
   command: sudo /bin/systemctl restart {{ app_name}}
   when: "app_restart_method == 'systemctl'"
   # when: "ansible_service_mgr == 'systemd' or (ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7')"
 
-- name: Restart app
+- name: Touch restart flag file
   file:
-    path: {{ app_flag_file }}
+    path: "{{ app_flag_file }}"
     state: touch
     mode: '0660'
+  when: "app_restart_method == 'touch'"
