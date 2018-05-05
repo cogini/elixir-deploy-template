@@ -71,6 +71,8 @@ echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bashrc
 echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bashrc
 ```
 
+Log out and log back in again to get ASDF settings.
+
 Install plugins for our tools
 
 ```shell
@@ -90,7 +92,8 @@ Install libraries into the ASDF Elixir dirs
 ```shell
 mix local.hex --force
 mix local.rebar --force
-mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez --force
+# Not strictly necessary if we are just building
+# mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez --force
 ```
 
 ## Initialize the app
@@ -119,6 +122,13 @@ MIX_ENV=prod mix compile
 MIX_ENV=prod mix phx.digest
 MIX_ENV=prod mix release
 ```
+
+Set in `mix.exs`:
+
+    deploy_dir: "/opt/myorg/deploy-template/",
+
+MIX_ENV=prod mix deploy.local
+sudo /bin/systemctl restart deploy-template
 
 Now you should be able to run the app from the release:
 
@@ -186,8 +196,8 @@ Check out source on build machine
 	ssh -A elixir-deploy-template
 	mkdir build
 	cd build
-	sudo yum install git
 	git clone https://github.com/cogini/elixir-deploy-template
+	# git clone git@github.com:cogini/elixir-deploy-template.git
 
 Set up ASDF
 
@@ -241,6 +251,8 @@ Deploy the app:
 ```shell
 ansible-playbook -u deploy -v -l web-servers playbooks/deploy-template.yml --tags deploy --extra-vars ansible_become=false -D
 ```
+
+Logs are in `RELEASE_MUTABLE_DIR/log`, `/var/tmp/myorg/deploy-template/log`
 
 # TODO
 
