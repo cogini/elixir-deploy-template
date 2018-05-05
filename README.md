@@ -66,7 +66,7 @@ Add the ASDF scripts to your shell startup files:
 echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bash_profile
 echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bash_profile
 
-# For Ubuntu or other linux distros
+# For Linux
 echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bashrc
 echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bashrc
 ```
@@ -88,8 +88,9 @@ asdf install
 Install libraries into the ASDF Elixir dirs
 
 ```shell
-mix local.hex
-mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez
+mix local.hex --force
+mix local.rebar --force
+mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez --force
 ```
 
 ## Initialize the app
@@ -98,6 +99,7 @@ mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_
 mix deps.get
 mix deps.compile
 # cd assets && npm install && node node_modules/brunch/bin/brunch build
+
 ```
 
 At this point you should be able to run the app locally with
@@ -114,7 +116,21 @@ open http://localhost:4000/
 mix deps.get --only prod
 MIX_ENV=prod mix compile
 # brunch build --production
-MIX_ENV=prod mix do phx.digest, release
+MIX_ENV=prod mix phx.digest
+MIX_ENV=prod mix release
+```
+
+Now you should be able to run the app from the release:
+
+Edit `config/prod.exs`
+
+```elixir
+config :phoenix, :serve_endpoints, true
+# import_config "prod.secret.exs"
+```
+
+```shell
+PORT=4001 _build/prod/rel/deploy_template/bin/deploy_template foreground
 ```
 
 ## Deploy the app
@@ -143,6 +159,12 @@ Add host to inventory `inventory/hosts`, e.g.:
 
 ## Set up the machine
 
+	sudo yum install git
+
+	sudo yum install epel-release
+	sudo yum group install "Development Tools"
+	sudo yum install openssl-devel
+
 Add user accounts:
 
 ```shell
@@ -159,6 +181,60 @@ ansible-playbook -u $USER -v -l web-servers playbooks/deploy-template.yml --skip
 
 ## Deploy the app
 
+Check out source on build machine
+
+	ssh -A elixir-deploy-template
+	mkdir build
+	cd build
+	sudo yum install git
+	git clone https://github.com/cogini/elixir-deploy-template
+
+Set up ASDF
+
+Install build deps for Erlang
+
+On CentOS 7.x:
+
+	# Utils
+	sudo yum install htop tmux
+
+	# https://github.com/erlang/otp/blob/maint/HOWTO/INSTALL.md
+
+	sudo yum install epel-release -y
+    # sudo yum group install "Development Tools"
+	sudo yum install -y gcc gcc-c++ glibc-devel make ncurses-devel openssl-devel autoconf 
+
+	# sudo yum install -y gcc         glibc-devel make ncurses-devel openssl-devel automake autoconf
+	# sudo yum install pam-devel
+	# sudo yum install perl-Digest-SHA-5.85-3.el7.x86_64
+
+	# Java http://www.oracle.com/technetwork/java/javase/downloads
+	# yum install java-1.8.0-openjdk-devel
+    # yum install pam-devel perl-Digest-SHA
+
+    # Node.js build deps
+    yum install gpg perl-Digest-SHA
+
+
+See [the ASDF Erlang plugin docs](https://github.com/asdf-vm/asdf-erlang) for details:
+
+```shell
+# Set Erlang build options
+# https://github.com/asdf-vm/asdf-erlang
+export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac"
+
+# Import the Node.js release team's OpenPGP keys to main keyring:
+# https://github.com/asdf-vm/asdf-nodejs
+bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
+
+asdf install
+```
+
+Install build deps for ansible
+
+	sudo yum install python-devel python-pip libffi-devel openssl-devel
+	sudo pip install ansible
+
 
 Deploy the app:
 
@@ -171,6 +247,7 @@ ansible-playbook -u deploy -v -l web-servers playbooks/deploy-template.yml --tag
 Set up versioned static assets
 Add example for CodeDeploy
 
+Comment out config/prod.secret.exs
 
 To start your Phoenix server:
 
