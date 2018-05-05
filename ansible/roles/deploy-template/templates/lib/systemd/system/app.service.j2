@@ -5,6 +5,7 @@ Description={{ app_name }} server
 After=local-fs.target network.target
 
 [Service]
+# Type=simple # the default
 User={{ app_user }}
 Group={{ app_group }}
 WorkingDirectory={{ deploy_dir }}/current
