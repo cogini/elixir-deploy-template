@@ -9,8 +9,8 @@ After=local-fs.target network.target
 User={{ app_user }}
 Group={{ app_group }}
 WorkingDirectory={{ deploy_dir }}/current
-ExecStart={{ deploy_dir }}/current/bin/{{ app_name }} foreground
-ExecStop={{ deploy_dir }}/current/bin/{{ app_name }} stop
+ExecStart={{ deploy_dir }}/current/bin/{{ app_name_code }} foreground
+ExecStop={{ deploy_dir }}/current/bin/{{ app_name_code }} stop
 Environment=LANG=en_US.UTF-8
 Environment=MIX_ENV={{ app_env }}
 Environment=RELEASE_MUTABLE_DIR={{ temp_dir }}
