@@ -12,6 +12,9 @@ app_name_code: deploy_template
 # App environment
 app_env: prod
 
+# HTTP listen port
+app_http_listen_port: 4001
+
 # OS user that deploys / owns the release files
 deploy_user: deploy
 # OS group that deploys / owns the release files
