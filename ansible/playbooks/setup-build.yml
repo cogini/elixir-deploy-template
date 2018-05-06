@@ -2,22 +2,40 @@
 # Build system setup
 # ansible-playbook -u $USER -v -l elixir-deploy-template playbooks/setup-build.yml -D
 
-- name: install common
+ - name: install common
+   hosts: '*'
+   become: true
+   vars:
+     tools_other_packages:
+       # Useful utils
+       - ack
+       - htop
+       - psmisc
+       - wget
+       - vim-enhanced
+       - tmux
+       - git
+   roles:
+     - common-minimal
+     - tools-other
+     # - {role: geerlingguy.ntp, become: true}
+     # - network
+     # - {role: iptables, become: true}
+     # - postfix-sender
+     # - cogini.prometheus-rpm
+
+- name: install asdf
   hosts: '*'
   become: true
-  gather_facts: true
   vars:
-    tools_other_packages:
-      # Useful utils
-      - ack
-      - htop
-      - psmisc
-      - wget
-      - vim-enhanced
-      - tmux
-      - git
-
-      # Build deps for Erlang
+    asdf_version: v0.4.3
+    asdf_user: deploy
+    asdf_plugins:
+      - name: erlang
+      - name: elixir
+      - name: nodejs
+    asdf_plugin_dependencies:
+      # Erlang
       - gcc
       - glibc-devel
       - make
@@ -27,24 +45,23 @@
       - pam-devel
       - perl
 
-      # Build deps for Node.js
+      # Node.js
       - gpg
       - perl-Digest-SHA
-
-      # Build deps for ansible
-      - python-devel
-      - python-pip
-      - libffi-devel
-      - openssl-devel
-    tools_other_pip:
-      - ansible
   roles:
-    - common-minimal
-    - tools-other
-    # - {role: geerlingguy.ntp, become: true}
-    # - network
-    # - {role: iptables, become: true}
-    # - postfix-sender
-    # - java
-    # - cogini.prometheus-rpm
+    - asdf
+  tasks:
+    - name: Set vars
+      set_fact:
+        asdf_nodejs_keyring: "{{ asdf_user_home }}/.asdf/keyrings/nodejs"
 
+    - name: create keyring for Node.js keys
+      file: path={{ asdf_nodejs_keyring }} state=directory owner={{ asdf_user }} {{ asdf_user }} mode=0700
+
+    - name: import Node.js keys to keyring
+      command: "bash -lc '{{ asdf_user_home }}/.asdf/plugins/nodejs/bin/import-release-team-keyring'"
+      args:
+        creates: "{{ asdf_nodejs_keyring }}/pubring.gpg"
+      become_user: "{{ asdf_user }}"
+      environment:
+        GNUPGHOME: "{{ asdf_nodejs_keyring }}"
