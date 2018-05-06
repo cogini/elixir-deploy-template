@@ -1,0 +1,19 @@
+---
+# Install ansible on build system
+#
+# ansible-playbook -u $USER -v -l build-servers playbooks/setup-ansible.yml -D
+
+ - name: install ansible
+   hosts: '*'
+   become: true
+   vars:
+     tools_other_packages:
+       # Build deps for ansible
+       - python-devel
+       - python-pip
+       - libffi-devel
+       - openssl-devel
+     tools_other_pip:
+       - ansible
+   roles:
+     - tools-other
