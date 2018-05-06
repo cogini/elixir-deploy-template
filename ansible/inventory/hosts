@@ -3,3 +3,6 @@ localhost ansible_sudo=false
 
 [web-servers]
 elixir-deploy-template
+
+[build-servers]
+elixir-deploy-template
