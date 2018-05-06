@@ -3,53 +3,13 @@
 This is an example of deploying an Elixir app based on this
 [blog post](https://www.cogini.com/blog/best-practices-for-deploying-elixir-apps/).
 
-Here are the steps used to set it up:
-
-## Generate app
-
-It all began with a Phoenix generator:
-
-    mix phx.new --no-ecto deploy_template
-
-## Set up distillery
-
-Generate initial `rel` files:
-
-    mix release.init
-
-Modify `rel/config.exs` to use random cookie and tune VM with `vm.args.eex` file.
-
-## Set up ASDF
-
-Add `.tool-versions` file to specify versions of Elixir and Erlang.
-
-## Add mix tasks for deploy.local
-
-Add `lib/mix/tasks/deploy.ex`
-
-## Set up Conform
-
-TODO
-
-- Set up Conform
-
-## Add Ansible
-
-Add Ansible tasks to set up the server and deploy code, in the `ansible` directory.
-
-To make it easier for beginners to run, this repository contains local copies
-of roles from Ansible Galaxy. To update them, run:
-
-    ansible-galaxy install --roles-path roles.galaxy -r install_roles.yml
-
-## Add shutdown_flag
-
-https://github.com/cogini/shutdown_flag
-
-
 # Installation
 
 ## Check out the code from git to your local dev machine.
+
+```shell
+git clone https://github.com/cogini/elixir-deploy-template
+```
 
 ## Set up ASDF
 
@@ -101,6 +61,7 @@ mix local.rebar --force
 ```shell
 mix deps.get
 mix deps.compile
+# Not needed anymore
 # cd assets && npm install && node node_modules/brunch/bin/brunch build
 
 ```
@@ -113,39 +74,9 @@ iex -S mix phx.server
 open http://localhost:4000/
 ```
 
-## Build the app release
-
-```shell
-mix deps.get --only prod
-MIX_ENV=prod mix compile
-# brunch build --production
-MIX_ENV=prod mix phx.digest
-MIX_ENV=prod mix release
-```
-
-Set in `mix.exs`:
-
-    deploy_dir: "/opt/myorg/deploy-template/",
-
-MIX_ENV=prod mix deploy.local
-sudo /bin/systemctl restart deploy-template
-
-Now you should be able to run the app from the release:
-
-Edit `config/prod.exs`
-
-```elixir
-config :phoenix, :serve_endpoints, true
-# import_config "prod.secret.exs"
-```
-
-```shell
-PORT=4001 _build/prod/rel/deploy_template/bin/deploy_template foreground
-```
-
 ## Deploy the app
 
-Install Ansible on your local machine. Maybe as simple as:
+Install Ansible on your dev machine. Maybe as simple as:
 
 ```shell
 pip install ansible
@@ -153,32 +84,35 @@ pip install ansible
 
 See [the Ansible docs](http://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) for details.
 
-### Add machine to inventory
 
-Add host to `~/.ssh/config`, e.g.:
+### Set up a target machine
+
+An easy option is [Digital Ocean](https://m.do.co/c/65a8c175b9bf) (say thanks
+for this guid by using our affiliate code). Their smallest $5/month Droplet
+will run Elixir fine. It can be a bit slow doing the initial compile
+of Erlang or if you want to run heavy tests like Dialyzer.
+
+
+Add the host to the `~/.ssh/config` on your dev machine, e.g.:
 
     Host elixir-deploy-template
-        HostName 159.89.197.173
+        HostName 123.45.67.89
 
-From the `ansible` directory...
-
-Add host to inventory `inventory/hosts`, e.g.:
+From the `ansible` directory, add the host to the Ansible inventory
+`inventory/hosts`:
 
     [web-servers]
     elixir-deploy-template
 
-## Set up the machine
+    [build-servers]
+    elixir-deploy-template
 
-	sudo yum install git
+## Configure the target server
 
-	sudo yum install epel-release
-	sudo yum group install "Development Tools"
-	sudo yum install openssl-devel
-
-Add user accounts:
+Run Ansible to set up user accounts on the server:
 
 ```shell
-ansible-playbook -u root -v -l elixir-deploy-template playbooks/manage-users.yml -D
+ansible-playbook -u root -v -l web-servers playbooks/manage-users.yml -D
 ```
 
 See comments in `playbooks/manage-users.yml` for other ways to run the playbook.
@@ -189,62 +123,107 @@ Set up app directories:
 ansible-playbook -u $USER -v -l web-servers playbooks/deploy-template.yml --skip-tags deploy -D
 ```
 
-## Deploy the app
+## Set up build server
 
-Check out source on build machine
+This can be the same as the target server, or a different one. 
 
-	ssh -A elixir-deploy-template
-	mkdir build
-	cd build
-	git clone https://github.com/cogini/elixir-deploy-template
-	# git clone git@github.com:cogini/elixir-deploy-template.git
-
-Set up ASDF
-
-Install build deps for Erlang
-
-On CentOS 7.x:
-
-	# Utils
-	sudo yum install htop tmux
-
-	# https://github.com/erlang/otp/blob/maint/HOWTO/INSTALL.md
-
-	sudo yum install epel-release -y
-    # sudo yum group install "Development Tools"
-	sudo yum install -y gcc gcc-c++ glibc-devel make ncurses-devel openssl-devel autoconf 
-
-	# sudo yum install -y gcc         glibc-devel make ncurses-devel openssl-devel automake autoconf
-	# sudo yum install pam-devel
-	# sudo yum install perl-Digest-SHA-5.85-3.el7.x86_64
-
-	# Java http://www.oracle.com/technetwork/java/javase/downloads
-	# yum install java-1.8.0-openjdk-devel
-    # yum install pam-devel perl-Digest-SHA
-
-    # Node.js build deps
-    yum install gpg perl-Digest-SHA
-
-
-See [the ASDF Erlang plugin docs](https://github.com/asdf-vm/asdf-erlang) for details:
+Set up the build server, mainly ASDF:
 
 ```shell
-# Set Erlang build options
-# https://github.com/asdf-vm/asdf-erlang
-export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac"
-
-# Import the Node.js release team's OpenPGP keys to main keyring:
-# https://github.com/asdf-vm/asdf-nodejs
-bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
-
-asdf install
+ansible-playbook -u $USER -v -l build-servers playbooks/setup-build.yml -D
 ```
 
-Install build deps for ansible
+## Build the app
 
-	sudo yum install python-devel python-pip libffi-devel openssl-devel
-	sudo pip install ansible
+Log into the `deploy` user on the build machine:
 
+```shell
+ssh -A build@elixir-deploy-template
+```
+
+Check out the source:
+
+```shell
+mkdir build
+cd build
+git clone https://github.com/cogini/elixir-deploy-template
+cd elixir-deploy-template
+
+# Install Erlang, Elixir and Node.js as specified in .tool-versions
+asdf install
+
+# Install Elixir libraries
+mix local.hex --force
+mix local.rebar --force
+```
+
+Build the production release
+
+```shell
+mix deps.get --only prod
+MIX_ENV=prod mix compile
+MIX_ENV=prod mix phx.digest
+MIX_ENV=prod mix release
+```
+
+Now you should be able to run the app from the release:
+
+```shell
+PORT=4001 _build/prod/rel/deploy_template/bin/deploy_template foreground
+```
+
+From another shell:
+
+```shell
+curl -v http://localhost:4001/
+```
+
+## Deploy the release
+
+If you are running on the same machine, then you can use the mix tasks
+to deploy locally.
+
+In `mix.exs`, set `deploy_dir` to match the Ansible config:
+
+```elixir
+deploy_dir: "/opt/myorg/deploy-template/",
+```
+
+Deploy the release:
+
+```shell
+MIX_ENV=prod mix deploy.local
+sudo /bin/systemctl restart deploy-template
+```
+
+This assumes that the build is being done under the `deploy` user, who
+owns the files under `/opt/myorg/deploy-template` and has a `/etc/sudoers.d`
+config which allows it to run the `/bin/systemctl restart deploy-template`
+command.
+
+Have a look at the logs:
+```shell
+# systemctl status deploy-template
+```
+
+```shell
+# journalctl -r -u deploy-template
+```
+
+## Deploy to a remote machine using Ansible
+
+On your dev machine, install Ansible on the build machine:
+
+```shell
+ansible-playbook -u deploy -v -l build-servers playbooks/setup-ansible.yml -D
+```
+
+On the build machine, log in as `deploy` and go to the `build/elixir-deploy-template/ansible`
+directory.
+
+```shell
+ssh -A build@elixir-deploy-template
+```
 
 Deploy the app:
 
@@ -252,28 +231,67 @@ Deploy the app:
 ansible-playbook -u deploy -v -l web-servers playbooks/deploy-template.yml --tags deploy --extra-vars ansible_become=false -D
 ```
 
-Logs are in `RELEASE_MUTABLE_DIR/log`, `/var/tmp/myorg/deploy-template/log`
+# Changes
+
+Following are all the steps used to set up this repo.
+
+It all began with a new Phoenix project:
+
+```shell
+mix phx.new --no-ecto deploy_template
+```
+
+## Set up distillery
+
+Generate initial `rel` files:
+
+```shell
+mix release.init
+```
+
+Modify `rel/config.exs` to use random cookie and tune VM with `vm.args.eex` file.
+
+## Set up ASDF
+
+Add `.tool-versions` file to specify versions of Elixir and Erlang.
+
+## Add mix tasks for deploy.local
+
+Add `lib/mix/tasks/deploy.ex`
+
+## Configure for running in a release
+
+Edit `config/prod.exs`
+
+Uncomment this:
+
+```elixir
+config :phoenix, :serve_endpoints, true
+```
+
+Comment this, as we are not using `prod.secret.exs`:
+
+```elixir
+import_config "prod.secret.exs"
+```
+
+## Add Ansible
+
+Add Ansible tasks to set up the server and deploy code, in the `ansible` directory.
+
+To make it easier for beginners to run, this repository contains local copies
+of roles from Ansible Galaxy in the roles.galaxy. To update them, run:
+
+```shell
+ansible-galaxy install --roles-path roles.galaxy -r install_roles.yml
+```
+
+## Add shutdown_flag
+
+https://github.com/cogini/shutdown_flag
 
 # TODO
 
 Set up versioned static assets
 Add example for CodeDeploy
-
-Comment out config/prod.secret.exs
-
-To start your Phoenix server:
-
-  * Install dependencies with `mix deps.get`
-  * Start Phoenix endpoint with `mix phx.server`
-
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
-
-Ready to run in production? Please [check our deployment guides](http://www.phoenixframework.org/docs/deployment).
-
-## Learn more
-
-  * Official website: http://www.phoenixframework.org/
-  * Guides: http://phoenixframework.org/docs/overview
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix
+Set up Conform
