@@ -9,7 +9,8 @@ defmodule DeployTemplate.Mixfile do
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
-      deps: deps()
+      deps: deps(),
+      deploy_dir: "/opt/myorg/deploy-template/",
     ]
   end
 
