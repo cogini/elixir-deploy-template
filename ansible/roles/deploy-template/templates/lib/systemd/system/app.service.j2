@@ -5,7 +5,7 @@ Description={{ app_name }} server
 After=local-fs.target network.target
 
 [Service]
-# Type=simple # the default
+Type=simple
 User={{ app_user }}
 Group={{ app_group }}
 WorkingDirectory={{ deploy_dir }}/current
@@ -20,13 +20,12 @@ Environment=PORT={{ app_http_listen_port }}
 LimitNOFILE=65536
 UMask=0027
 SyslogIdentifier={{ app_name }}
-RestartSec=5 # default 100ms
-TimeoutSec=10
-SuccessExitStatus=143
-KillMode=process # default control-group
 Restart=always
-# Restart=on-failure
-RemainAfterExit=no
+RestartSec=5
+# KillMode=process # default control-group
+# TimeoutSec=10
+# RemainAfterExit=no
+# SuccessExitStatus=143
 
 # From distillery https://hexdocs.pm/distillery/use-with-systemd.html
 
