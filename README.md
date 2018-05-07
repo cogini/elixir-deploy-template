@@ -125,7 +125,7 @@ ansible-playbook -u $USER -v -l web-servers playbooks/deploy-template.yml --skip
 
 ## Set up build server
 
-This can be the same as the target server, or a different one. 
+This can be the same as the target server, or a different one.
 
 Set up the build server, mainly ASDF:
 
@@ -140,6 +140,14 @@ Log into the `deploy` user on the build machine:
 ```shell
 ssh -A build@elixir-deploy-template
 ```
+
+The `-A` ssh flag gives the session on the server access to your local ssh
+keys.  So if your loal user can access a github repo, then the server can do
+it, without having deploy keys on the server. Similarly, you can deploy code to
+a prod server using Ansible. If you are using a CI server to build and deploy
+code, then you would normally set up a deploy key with access to your source
+and configure the deploy user account on the prod servers to trust the build
+server. 
 
 Check out the source:
 
@@ -159,23 +167,15 @@ mix local.rebar --force
 
 Generate a cookie and put it in `config/cookie.txt`.
 
-```shell
-pwgen -s 64
-```
-or
-
 ```elixir
 iex> :crypto.strong_rand_bytes(32) |> Base.encode16
 ```
 
 Build the production release
 
-
 ```shell
 mix deps.get --only prod
-MIX_ENV=prod mix compile
-MIX_ENV=prod mix phx.digest
-MIX_ENV=prod mix release
+MIX_ENV=prod mix do compile, phx.digest, release
 ```
 
 Now you should be able to run the app from the release:
@@ -184,11 +184,10 @@ Now you should be able to run the app from the release:
 PORT=4001 _build/prod/rel/deploy_template/bin/deploy_template foreground
 ```
 
-From another shell:
-
 ```shell
 curl -v http://localhost:4001/
 ```
+or access the machine from over the network.
 
 ## Deploy the release
 
