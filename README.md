@@ -13,7 +13,7 @@ git clone https://github.com/cogini/elixir-deploy-template
 
 ## Set up ASDF
 
-Following [the ASDF docs](https://github.com/asdf-vm/asdf):
+Install ASDF as described in [the ASDF docs](https://github.com/asdf-vm/asdf).
 
 Install plugins for our tools
 
@@ -70,16 +70,15 @@ pip install ansible
 
 An easy option is [Digital Ocean](https://m.do.co/c/65a8c175b9bf) (use our affilate
 code to say thanks for this guide). Their smallest $5/month Droplet
-will run Elixir fine. It can be a bit slow doing the initial compile
-of Erlang or if you want to run heavy tests like Dialyzer.
+will run Elixir fine, though it is a bit slow doing the initial compile
+of Erlang.
 
 Add the host to the `~/.ssh/config` on your dev machine, e.g.:
 
     Host elixir-deploy-template
         HostName 123.45.67.89
 
-From the `ansible` directory, add the host to the Ansible inventory
-`inventory/hosts`:
+Add the host to the Ansible inventory `ansible/inventory/hosts`:
 
     [web-servers]
     elixir-deploy-template
@@ -87,9 +86,9 @@ From the `ansible` directory, add the host to the Ansible inventory
     [build-servers]
     elixir-deploy-template
 
-## Configure the target server
+## Configure the target server using Ansible
 
-Run Ansible to set up user accounts on the server:
+From the `ansible` dir, set up user accounts on the server:
 
 ```shell
 ansible-playbook -u root -v -l web-servers playbooks/manage-users.yml -D
@@ -97,7 +96,7 @@ ansible-playbook -u root -v -l web-servers playbooks/manage-users.yml -D
 
 See comments in `playbooks/manage-users.yml` for other ways to run the playbook.
 
-Set up app directories, etc:
+Set up the app (directories, etc):
 
 ```shell
 ansible-playbook -u $USER -v -l web-servers playbooks/deploy-template.yml --skip-tags deploy -D
@@ -105,7 +104,7 @@ ansible-playbook -u $USER -v -l web-servers playbooks/deploy-template.yml --skip
 
 ## Set up build server
 
-This can be the same as the web server, or a different one.
+This can be the same as the web server, or a different server one.
 
 Set up the build server, mainly ASDF:
 
