@@ -97,7 +97,7 @@ ansible-playbook -u root -v -l web-servers playbooks/manage-users.yml -D
 
 See comments in `playbooks/manage-users.yml` for other ways to run the playbook.
 
-Set up app directories:
+Set up app directories, etc:
 
 ```shell
 ansible-playbook -u $USER -v -l web-servers playbooks/deploy-template.yml --skip-tags deploy -D
@@ -284,14 +284,14 @@ https://github.com/cogini/shutdown_flag
 
 # TODO
 
-systemd watchdog notify
-Log with journald prefix
-Log to journald unix domain socket
-systemd socket activation
-
 Firewall config
 Nginx config
-
-Set up versioned static assets
-Add example for CodeDeploy
 Set up Conform
+Set up versioned static assets
+
+Add example for CodeDeploy
+
+Log with journald prefix
+systemd watchdog notify
+Log to journald unix domain socket
+systemd socket activation
