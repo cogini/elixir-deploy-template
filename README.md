@@ -5,7 +5,7 @@ This is an example of deploying an Elixir app based on this
 
 # Installation
 
-## Check out the code from git to your local dev machine.
+Check out the code from git to your local dev machine.
 
 ```shell
 git clone https://github.com/cogini/elixir-deploy-template
@@ -60,7 +60,7 @@ Install Ansible on your dev machine. See [the Ansible
 docs](http://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
 for details.
 
-Maybe as simple as:
+May be as simple as:
 
 ```shell
 pip install ansible
@@ -68,17 +68,16 @@ pip install ansible
 
 ### Set up a target machine
 
-An easy option is [Digital Ocean](https://m.do.co/c/65a8c175b9bf) (use our affilate
-code to say thanks for this guide). Their smallest $5/month Droplet
-will run Elixir fine, though it is a bit slow doing the initial compile
-of Erlang.
+An easy option is [Digital Ocean](https://m.do.co/c/65a8c175b9bf). Their
+smallest $5/month Droplet will run Elixir fine, though it is a bit
+slow doing the initial compile of Erlang.
 
 Add the host to the `~/.ssh/config` on your dev machine, e.g.:
 
     Host elixir-deploy-template
         HostName 123.45.67.89
 
-Add the host to the Ansible inventory `ansible/inventory/hosts`:
+Add the host to the groups in the Ansible inventory `ansible/inventory/hosts` file:
 
     [web-servers]
     elixir-deploy-template
@@ -102,11 +101,11 @@ Set up the app (directories, etc):
 ansible-playbook -u $USER -v -l web-servers playbooks/deploy-template.yml --skip-tags deploy -D
 ```
 
-## Set up build server
+## Set up the build server
 
-This can be the same as the web server, or a different server one.
+This can be the same as the web server.
 
-Set up the build server, mainly ASDF:
+Set up ASDF:
 
 ```shell
 ansible-playbook -u $USER -v -l build-servers playbooks/setup-build.yml -D
@@ -135,11 +134,19 @@ mkdir build
 cd build
 git clone https://github.com/cogini/elixir-deploy-template
 cd elixir-deploy-template
+```
 
-# Install Erlang, Elixir and Node.js as specified in .tool-versions
+Install Erlang, Elixir and Node.js as specified in `.tool-versions`.
+The initial build of Erlang from source can take a while, so you may
+want to run it under `tmux`.
+
+```shell
 asdf install
+```
 
-# Install Elixir libraries
+Install libraries into the ASDF dir for the specfiied Elixir version:
+
+```shell
 mix local.hex --force
 mix local.rebar --force
 ```
@@ -166,12 +173,12 @@ PORT=4001 _build/prod/rel/deploy_template/bin/deploy_template foreground
 ```shell
 curl -v http://localhost:4001/
 ```
-or access the machine from over the network.
+or access the machine over the network.
 
 ## Deploy the release
 
-If you are running on the same machine, then you can use the mix tasks
-to deploy locally.
+If you are running on the same machine, then you can use the mix tasks to
+deploy locally.
 
 In `mix.exs`, set `deploy_dir` to match the directory structure in Ansible,
 e.g.:
@@ -209,11 +216,11 @@ From your dev machine, install Ansible on the build machine:
 ansible-playbook -u deploy -v -l build-servers playbooks/setup-ansible.yml -D
 ```
 
-On the build machine, log in as `deploy` and go to the `build/elixir-deploy-template/ansible`
-directory.
+Log into the build machine:
 
 ```shell
-ssh -A build@elixir-deploy-template
+ssh -A deploy@elixir-deploy-template
+cd ~/build/elixir-deploy-template/ansible
 ```
 
 Deploy the app:
@@ -246,10 +253,6 @@ Modify `rel/config.exs` to get cookie from file and `vm.args.eex` to tune the VM
 
 Add `.tool-versions` file to specify versions of Elixir and Erlang.
 
-## Add mix tasks for deploy.local
-
-Add `lib/mix/tasks/deploy.ex`
-
 ## Configure for running in a release
 
 Edit `config/prod.exs`
@@ -277,7 +280,15 @@ of roles from Ansible Galaxy in the roles.galaxy. To update them, run:
 ansible-galaxy install --roles-path roles.galaxy -r install_roles.yml
 ```
 
+## Add mix tasks for deploy.local
+
+Add `lib/mix/tasks/deploy.ex`
+
 ## Add shutdown_flag
+
+Add to `mix.exs`:
+
+    {:shutdown_flag, github: "cogini/shutdown_flag"},
 
 https://github.com/cogini/shutdown_flag
 
@@ -286,11 +297,3 @@ https://github.com/cogini/shutdown_flag
 Firewall config
 Nginx config
 Set up Conform
-Set up versioned static assets
-
-Add example for CodeDeploy
-
-Log with journald prefix
-systemd watchdog notify
-Log to journald unix domain socket
-systemd socket activation
