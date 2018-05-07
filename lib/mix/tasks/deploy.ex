@@ -114,13 +114,38 @@ defmodule Mix.Tasks.Deploy do
 end
 
 defmodule Mix.Tasks.Deploy.Local.Rollback do
-  @moduledoc false
+  @shortdoc "Roll back to previous release"
+
+  @moduledoc """
+  This task updates the current symlink to point to the previous release directory. 
+  """
 
   use Mix.Task
 
   def run(args) do
     config = Mix.Tasks.Deploy.Local.parse_args(args)
-    dirs = config.release_base |> File.ls! |> Enum.sort
-    IO.puts (inspect dirs)
+    dirs = config.release_base |> File.ls! |> Enum.sort |> Enum.reverse
+    rollback(dirs, config)
   end
+
+  def rollback([_current, prev | _rest], config) do
+    release_dir = Path.join(config.release_base, prev)
+    remove_current_link(config)
+    IO.puts "Making link from #{release_dir} to #{config.current_link}"
+    File.ln_s(release_dir, config.current_link)
+  end
+  def rollback(dirs, _config) do
+    IO.puts "Nothing to roll back to: releases = #{inspect dirs}"
+  end
+
+  def remove_current_link(config) do
+    case File.read_link(config.current_link) do
+      {:ok, target} ->
+        IO.puts "Removing link from #{target} to #{config.current_link}"
+        :ok = File.rm(config.current_link)
+      {:error, _reason} ->
+        IO.puts "No current link #{config.current_link}"
+    end
+  end
+
 end
