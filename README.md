@@ -157,7 +157,19 @@ mix local.hex --force
 mix local.rebar --force
 ```
 
+Generate a cookie and put it in `config/cookie.txt`.
+
+```shell
+pwgen -s 64
+```
+or
+
+```elixir
+iex> :crypto.strong_rand_bytes(32) |> Base.encode16
+```
+
 Build the production release
+
 
 ```shell
 mix deps.get --only prod
@@ -249,7 +261,7 @@ Generate initial `rel` files:
 mix release.init
 ```
 
-Modify `rel/config.exs` to use random cookie and tune VM with `vm.args.eex` file.
+Modify `rel/config.exs` to get cookie from file and tune VM with `vm.args.eex` file.
 
 ## Set up ASDF
 
