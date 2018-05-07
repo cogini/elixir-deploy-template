@@ -15,24 +15,6 @@ git clone https://github.com/cogini/elixir-deploy-template
 
 Following [the ASDF docs](https://github.com/asdf-vm/asdf):
 
-```shell
-git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.4.3
-```
-
-Add the ASDF scripts to your shell startup files:
-
-```shell
-# For Max OSX
-echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bash_profile
-echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bash_profile
-
-# For Linux
-echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bashrc
-echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bashrc
-```
-
-Log out and log back in again to get ASDF settings.
-
 Install plugins for our tools
 
 ```shell
@@ -41,7 +23,7 @@ asdf plugin-add elixir
 asdf plugin-add nodejs
 ```
 
-Install Erlang, Elixir and Node.js
+Install Erlang, Elixir and Node.js.
 
 ```shell
 asdf install
@@ -52,8 +34,7 @@ Install libraries into the ASDF Elixir dirs
 ```shell
 mix local.hex --force
 mix local.rebar --force
-# Not strictly necessary if we are just building
-# mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez --force
+mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez --force
 ```
 
 ## Initialize the app
@@ -63,7 +44,6 @@ mix deps.get
 mix deps.compile
 # Not needed anymore
 # cd assets && npm install && node node_modules/brunch/bin/brunch build
-
 ```
 
 At this point you should be able to run the app locally with
@@ -76,22 +56,22 @@ open http://localhost:4000/
 
 ## Deploy the app
 
-Install Ansible on your dev machine. Maybe as simple as:
+Install Ansible on your dev machine. See [the Ansible
+docs](http://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
+for details.
+
+Maybe as simple as:
 
 ```shell
 pip install ansible
 ```
 
-See [the Ansible docs](http://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) for details.
-
-
 ### Set up a target machine
 
-An easy option is [Digital Ocean](https://m.do.co/c/65a8c175b9bf) (say thanks
-for this guid by using our affiliate code). Their smallest $5/month Droplet
+An easy option is [Digital Ocean](https://m.do.co/c/65a8c175b9bf) (use our affilate
+code to say thanks for this guide). Their smallest $5/month Droplet
 will run Elixir fine. It can be a bit slow doing the initial compile
 of Erlang or if you want to run heavy tests like Dialyzer.
-
 
 Add the host to the `~/.ssh/config` on your dev machine, e.g.:
 
@@ -117,7 +97,7 @@ ansible-playbook -u root -v -l web-servers playbooks/manage-users.yml -D
 
 See comments in `playbooks/manage-users.yml` for other ways to run the playbook.
 
-Set up app directories:
+Set up app directories, etc:
 
 ```shell
 ansible-playbook -u $USER -v -l web-servers playbooks/deploy-template.yml --skip-tags deploy -D
@@ -125,7 +105,7 @@ ansible-playbook -u $USER -v -l web-servers playbooks/deploy-template.yml --skip
 
 ## Set up build server
 
-This can be the same as the target server, or a different one.
+This can be the same as the web server, or a different one.
 
 Set up the build server, mainly ASDF:
 
@@ -147,7 +127,7 @@ it, without having deploy keys on the server. Similarly, you can deploy code to
 a prod server using Ansible. If you are using a CI server to build and deploy
 code, then you would normally set up a deploy key with access to your source
 and configure the deploy user account on the prod servers to trust the build
-server. 
+server.
 
 Check out the source:
 
@@ -194,7 +174,8 @@ or access the machine from over the network.
 If you are running on the same machine, then you can use the mix tasks
 to deploy locally.
 
-In `mix.exs`, set `deploy_dir` to match the Ansible config:
+In `mix.exs`, set `deploy_dir` to match the directory structure in Ansible,
+e.g.:
 
 ```elixir
 deploy_dir: "/opt/myorg/deploy-template/",
@@ -223,7 +204,7 @@ Have a look at the logs:
 
 ## Deploy to a remote machine using Ansible
 
-On your dev machine, install Ansible on the build machine:
+From your dev machine, install Ansible on the build machine:
 
 ```shell
 ansible-playbook -u deploy -v -l build-servers playbooks/setup-ansible.yml -D
@@ -260,7 +241,7 @@ Generate initial `rel` files:
 mix release.init
 ```
 
-Modify `rel/config.exs` to get cookie from file and tune VM with `vm.args.eex` file.
+Modify `rel/config.exs` to get cookie from file and `vm.args.eex` to tune the VM settings.
 
 ## Set up ASDF
 
@@ -303,6 +284,14 @@ https://github.com/cogini/shutdown_flag
 
 # TODO
 
-Set up versioned static assets
-Add example for CodeDeploy
+Firewall config
+Nginx config
 Set up Conform
+Set up versioned static assets
+
+Add example for CodeDeploy
+
+Log with journald prefix
+systemd watchdog notify
+Log to journald unix domain socket
+systemd socket activation
