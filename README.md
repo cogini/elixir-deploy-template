@@ -1,11 +1,13 @@
-# DeployTemplate
+# deploy-template
 
-This is an example of deploying an Elixir app based on this
-[blog post](https://www.cogini.com/blog/best-practices-for-deploying-elixir-apps/).
+This is a turn-key example app which shows how to deploy Elixir app based on
+this [best practices for deploying elixir
+apps](https://www.cogini.com/blog/best-practices-for-deploying-elixir-apps/)
+blog post.
 
 # Installation
 
-Check out the code from git to your local dev machine.
+Check out the code from git to your local dev machine:
 
 ```shell
 git clone https://github.com/cogini/elixir-deploy-template
@@ -15,7 +17,7 @@ git clone https://github.com/cogini/elixir-deploy-template
 
 Install ASDF as described in [the ASDF docs](https://github.com/asdf-vm/asdf).
 
-Install plugins for our tools
+Install plugins for our tools:
 
 ```shell
 asdf plugin-add erlang
@@ -23,13 +25,13 @@ asdf plugin-add elixir
 asdf plugin-add nodejs
 ```
 
-Install Erlang, Elixir and Node.js.
+Install Erlang, Elixir and Node.js:
 
 ```shell
 asdf install
 ```
 
-Install libraries into the ASDF Elixir dirs
+Install libraries into the ASDF Elixir dirs:
 
 ```shell
 mix local.hex --force
@@ -46,7 +48,7 @@ mix deps.compile
 # cd assets && npm install && node node_modules/brunch/bin/brunch build
 ```
 
-At this point you should be able to run the app locally with
+At this point you should be able to run the app locally with:
 
 ```shell
 mix compile
@@ -60,7 +62,7 @@ Install Ansible on your dev machine. See [the Ansible
 docs](http://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
 for details.
 
-May be as simple as:
+That may be as simple as:
 
 ```shell
 pip install ansible
@@ -69,10 +71,9 @@ pip install ansible
 ### Set up a target machine
 
 An easy option is [Digital Ocean](https://m.do.co/c/65a8c175b9bf). Their
-smallest $5/month Droplet will run Elixir fine, though it is a bit
-slow doing the initial compile of Erlang.
+smallest $5/month Droplet will run Phoenix fine.
 
-Add the host to the `~/.ssh/config` on your dev machine, e.g.:
+Add the host to the `~/.ssh/config` on your dev machine:
 
     Host elixir-deploy-template
         HostName 123.45.67.89
@@ -95,7 +96,7 @@ ansible-playbook -u root -v -l web-servers playbooks/manage-users.yml -D
 
 See comments in `playbooks/manage-users.yml` for other ways to run the playbook.
 
-Set up the app (directories, etc):
+Set up the app (create dirs, etc):
 
 ```shell
 ansible-playbook -u $USER -v -l web-servers playbooks/deploy-template.yml --skip-tags deploy -D
@@ -103,7 +104,7 @@ ansible-playbook -u $USER -v -l web-servers playbooks/deploy-template.yml --skip
 
 ## Set up the build server
 
-This can be the same as the web server.
+The build server can be the same as the web server. 
 
 Set up ASDF:
 
@@ -119,13 +120,14 @@ Log into the `deploy` user on the build machine:
 ssh -A build@elixir-deploy-template
 ```
 
-The `-A` ssh flag gives the session on the server access to your local ssh
-keys.  So if your loal user can access a github repo, then the server can do
-it, without having deploy keys on the server. Similarly, you can deploy code to
-a prod server using Ansible. If you are using a CI server to build and deploy
-code, then you would normally set up a deploy key with access to your source
-and configure the deploy user account on the prod servers to trust the build
-server.
+The `-A` flag on the ssh command gives the session on the server access to your
+local ssh keys.  If your loal user can access a github repo, then the server
+can do it, without having to put keys on the server. Similarly, you can deploy
+code to a prod server using Ansible without the web server trusting the build server.
+
+If you are using a CI server to build and deploy code, then you would normally
+create a deploy key in GitHub so it can access to your source and configure the
+`deploy` user account on the prod servers to trust the build server.
 
 Check out the source:
 
@@ -136,28 +138,29 @@ git clone https://github.com/cogini/elixir-deploy-template
 cd elixir-deploy-template
 ```
 
-Install Erlang, Elixir and Node.js as specified in `.tool-versions`.
-The initial build of Erlang from source can take a while, so you may
-want to run it under `tmux`.
+Install Erlang, Elixir and Node.js as specified in `.tool-versions`:
 
 ```shell
 asdf install
 ```
 
-Install libraries into the ASDF dir for the specfiied Elixir version:
+The initial build of Erlang from source can take a while, so you may
+want to run it under `tmux` or `screen`.
+
+Install libraries into the ASDF dir for the specified Elixir version:
 
 ```shell
 mix local.hex --force
 mix local.rebar --force
 ```
 
-Generate a cookie and put it in `config/cookie.txt`.
+Generate a cookie and put it in `config/cookie.txt`:
 
 ```elixir
 iex> :crypto.strong_rand_bytes(32) |> Base.encode16
 ```
 
-Build the production release
+Build the production release:
 
 ```shell
 mix deps.get --only prod
@@ -194,17 +197,14 @@ MIX_ENV=prod mix deploy.local
 sudo /bin/systemctl restart deploy-template
 ```
 
-This assumes that the build is being done under the `deploy` user, who
-owns the files under `/opt/myorg/deploy-template` and has a `/etc/sudoers.d`
+This assumes that the build is being done under the `deploy` user, who owns the
+files under `/opt/myorg/deploy-template` and has a special `/etc/sudoers.d`
 config which allows it to run the `/bin/systemctl restart deploy-template`
 command.
 
 Have a look at the logs:
 ```shell
 # systemctl status deploy-template
-```
-
-```shell
 # journalctl -r -u deploy-template
 ```
 
@@ -231,7 +231,7 @@ ansible-playbook -u deploy -v -l web-servers playbooks/deploy-template.yml --tag
 
 # Changes
 
-Following are all the steps used to set up this repo.
+Following are the steps used to set up this repo.
 
 It all began with a new Phoenix project:
 
@@ -247,7 +247,8 @@ Generate initial `rel` files:
 mix release.init
 ```
 
-Modify `rel/config.exs` to get cookie from file and `vm.args.eex` to tune the VM settings.
+Modify `rel/config.exs` to set the cookie from a file and update `vm.args.eex`
+to tune the VM settings.
 
 ## Set up ASDF
 
@@ -271,29 +272,28 @@ import_config "prod.secret.exs"
 
 ## Add Ansible
 
-Add Ansible tasks to set up the server and deploy code, in the `ansible` directory.
+Add tasks to set up the servers and deploy code, in the `ansible`
+directory.
 
 To make it easier for beginners to run, this repository contains local copies
-of roles from Ansible Galaxy in the roles.galaxy. To update them, run:
+of roles from Ansible Galaxy in `roles.galaxy`. To update them, run:
 
 ```shell
 ansible-galaxy install --roles-path roles.galaxy -r install_roles.yml
 ```
 
-## Add mix tasks for deploy.local
+## Add mix tasks for local deploy
 
 Add `lib/mix/tasks/deploy.ex`
 
-## Add shutdown_flag
+## Add shutdown_flag library
 
-Add to `mix.exs`:
+Add [shutdown_flag](https://github.com/cogini/shutdown_flag) to `mix.exs`:
 
     {:shutdown_flag, github: "cogini/shutdown_flag"},
 
-https://github.com/cogini/shutdown_flag
-
 # TODO
 
-Firewall config
-Nginx config
-Set up Conform
+* Firewall config
+* Nginx config
+* Set up Conform
