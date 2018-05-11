@@ -2,27 +2,23 @@
 # Build system setup
 # ansible-playbook -u $USER -v -l elixir-deploy-template playbooks/setup-build.yml -D
 
- - name: install common
-   hosts: '*'
-   become: true
-   vars:
-     tools_other_packages:
-       # Useful utils
-       - ack
-       - htop
-       - psmisc
-       - wget
-       - vim-enhanced
-       - tmux
-       - git
-   roles:
-     - common-minimal
-     - tools-other
-     # - {role: geerlingguy.ntp, become: true}
-     # - network
-     # - {role: iptables, become: true}
-     # - postfix-sender
-     # - cogini.prometheus-rpm
+- name: install common
+  hosts: '*'
+  become: true
+  gather_facts: true
+  vars:
+    tools_other_packages:
+      # Useful utils
+      - ack
+      - htop
+      - psmisc
+      - wget
+      # - vim-enhanced
+      - tmux
+      - git
+  roles:
+    - common-minimal
+    - tools-other
 
 - name: install asdf
   hosts: '*'
@@ -34,20 +30,8 @@
       - name: erlang
       - name: elixir
       - name: nodejs
-    asdf_plugin_dependencies:
-      # Erlang
-      - gcc
-      - glibc-devel
-      - make
-      - ncurses-devel
-      - openssl-devel
-      - autoconf
-      - pam-devel
-      - perl
-
-      # Node.js
-      - gpg
-      - perl-Digest-SHA
+  vars_files:
+      - ../vars/{{ ansible_os_family }}.yml
   roles:
     - asdf
   tasks:

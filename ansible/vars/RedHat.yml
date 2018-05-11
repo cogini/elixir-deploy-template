@@ -1,0 +1,14 @@
+asdf_plugin_dependencies:
+  # Erlang
+  - gcc
+  - glibc-devel
+  - make
+  - ncurses-devel
+  - openssl-devel
+  - autoconf
+  - pam-devel
+  - perl
+
+  # Node.js
+  - gpg
+  - perl-Digest-SHA

@@ -1,0 +1,8 @@
+# Web system setup
+# ansible-playbook -u $USER -v -l elixir-deploy-template playbooks/setup-web.yml -D
+
+- name: Install common
+  hosts: '*'
+  become: true
+  roles:
+    - common-minimal

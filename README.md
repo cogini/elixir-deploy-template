@@ -88,15 +88,30 @@ Add the host to the groups in the Ansible inventory `ansible/inventory/hosts` fi
 
 ## Configure the target server using Ansible
 
-From the `ansible` dir, set up user accounts on the server:
+From the `ansible` dir:
+
+Newer versions of Ubuntu (16.04+) ship with Python 3, but the default for Ansible is Python 2.
+Install Python 2:
+
+```shell
+ansible-playbook -u root -v -l web-servers playbooks/setup-python.yml -D
+```
+
+Set up user accounts on the server:
 
 ```shell
 ansible-playbook -u root -v -l web-servers playbooks/manage-users.yml -D
 ```
 
+Do initial server setup (currently minimal):
+
+```shell
+ansible-playbook -u $USER -v -l web-servers playbooks/setup-web.yml -D
+```
+
 See comments in `playbooks/manage-users.yml` for other ways to run the playbook.
 
-Set up the app (create dirs, etc):
+Set up the app (create dirs, etc.):
 
 ```shell
 ansible-playbook -u $USER -v -l web-servers playbooks/deploy-template.yml --skip-tags deploy -D
@@ -104,7 +119,7 @@ ansible-playbook -u $USER -v -l web-servers playbooks/deploy-template.yml --skip
 
 ## Set up the build server
 
-The build server can be the same as the web server. 
+The build server can be the same as the web server.
 
 Set up ASDF:
 
@@ -117,11 +132,11 @@ ansible-playbook -u $USER -v -l build-servers playbooks/setup-build.yml -D
 Log into the `deploy` user on the build machine:
 
 ```shell
-ssh -A build@elixir-deploy-template
+ssh -A deploy@elixir-deploy-template
 ```
 
 The `-A` flag on the ssh command gives the session on the server access to your
-local ssh keys.  If your loal user can access a github repo, then the server
+local ssh keys.  If your local user can access a GitHub repo, then the server
 can do it, without having to put keys on the server. Similarly, you can deploy
 code to a prod server using Ansible without the web server trusting the build server.
 

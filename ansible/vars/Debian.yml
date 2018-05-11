@@ -1,0 +1,16 @@
+asdf_plugin_dependencies:
+  # Erlang
+  - automake
+  - autoconf
+  - build-essential
+  - libreadline-dev
+  - libncurses-dev
+  - libssl-dev
+  - libyaml-dev
+  - libxslt-dev
+  - libffi-dev
+  - libtool
+  - unzip
+
+  # Node.js
+  - gpg

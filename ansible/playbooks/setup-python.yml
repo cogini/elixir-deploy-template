@@ -1,0 +1,10 @@
+# Bootstrap python 2, needed on Ubuntu machines which ship with python 3
+# ansible-playbook -u root -v -l elixir-deploy-template playbooks/setup-python.yml -D
+
+- name: Bootstrap python 2
+  hosts: '*'
+  gather_facts: false
+  become: true
+  pre_tasks:
+    - name: Install python 2
+      raw: test -e /usr/bin/python2 || (apt -y update && apt install -y python)
