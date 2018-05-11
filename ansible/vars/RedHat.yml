@@ -1,4 +1,4 @@
-asdf_plugin_dependencies:
+asdf_optional_dependencies:
   # Erlang
   - gcc
   - glibc-devel
@@ -12,3 +12,12 @@ asdf_plugin_dependencies:
   # Node.js
   - gpg
   - perl-Digest-SHA
+
+gpg_pubring_file: pubring.gpg
+
+ansible_build_deps:
+  # Build deps for ansible
+  - python-devel
+  - python-pip
+  - libffi-devel
+  - openssl-devel

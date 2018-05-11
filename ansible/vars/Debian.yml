@@ -1,4 +1,4 @@
-asdf_plugin_dependencies:
+asdf_optional_dependencies:
   # Erlang
   - automake
   - autoconf
@@ -14,3 +14,8 @@ asdf_plugin_dependencies:
 
   # Node.js
   - gpg
+
+gpg_pubring_file: pubring.kbx
+
+ansible_build_deps:
+  - python-pip

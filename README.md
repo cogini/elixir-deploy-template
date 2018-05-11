@@ -30,6 +30,7 @@ Install Erlang, Elixir and Node.js:
 ```shell
 asdf install
 ```
+(may need to run this multiple times until everything is installed)
 
 Install libraries into the ASDF Elixir dirs:
 
@@ -158,6 +159,7 @@ Install Erlang, Elixir and Node.js as specified in `.tool-versions`:
 ```shell
 asdf install
 ```
+(may need to run this multiple times until everything is installed)
 
 The initial build of Erlang from source can take a while, so you may
 want to run it under `tmux` or `screen`.
@@ -217,6 +219,11 @@ files under `/opt/myorg/deploy-template` and has a special `/etc/sudoers.d`
 config which allows it to run the `/bin/systemctl restart deploy-template`
 command.
 
+You should be able to connect to the app supervised by systemd:
+```shell
+curl -v http://localhost:4001/
+```
+
 Have a look at the logs:
 ```shell
 # systemctl status deploy-template
@@ -228,7 +235,7 @@ Have a look at the logs:
 From your dev machine, install Ansible on the build machine:
 
 ```shell
-ansible-playbook -u deploy -v -l build-servers playbooks/setup-ansible.yml -D
+ansible-playbook -u $USER -v -l build-servers playbooks/setup-ansible.yml -D
 ```
 
 Log into the build machine:
@@ -237,6 +244,11 @@ Log into the build machine:
 ssh -A deploy@elixir-deploy-template
 cd ~/build/elixir-deploy-template/ansible
 ```
+
+Add the web-servers hosts to the `~/.ssh/config` on the deploy machine:
+
+    Host elixir-deploy-template
+        HostName 123.45.67.89
 
 Deploy the app:
 

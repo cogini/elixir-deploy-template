@@ -45,7 +45,7 @@
     - name: import Node.js keys to keyring
       command: "bash -lc '{{ asdf_user_home }}/.asdf/plugins/nodejs/bin/import-release-team-keyring'"
       args:
-        creates: "{{ asdf_nodejs_keyring }}/pubring.gpg"
+        creates: "{{ asdf_nodejs_keyring }}/{{ gpg_pubring_file }}"
       become_user: "{{ asdf_user }}"
       environment:
         GNUPGHOME: "{{ asdf_nodejs_keyring }}"
