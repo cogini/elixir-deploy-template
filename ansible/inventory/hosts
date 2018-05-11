@@ -3,8 +3,16 @@ localhost ansible_sudo=false
 
 [web-servers]
 elixir-deploy-template
-elixir-deploy-template-ubuntu
 
 [build-servers]
 elixir-deploy-template
-elixir-deploy-template-ubuntu
+
+# [web-servers]
+# elixir-deploy-template-centos-7
+# elixir-deploy-template-ubuntu-16
+# elixir-deploy-template-ubuntu-18
+
+# [build-servers]
+# elixir-deploy-template-centos-7
+# elixir-deploy-template-ubuntu-16
+# elixir-deploy-template-ubuntu-18
