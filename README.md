@@ -5,6 +5,10 @@ this [best practices for deploying elixir
 apps](https://www.cogini.com/blog/best-practices-for-deploying-elixir-apps/)
 blog post.
 
+It'ts been tested deploying to Digital Ocean](https://m.do.co/c/65a8c175b9bf),
+with CentOS 7 and Ubuntu 16.04 and 18.04. It assumes a distro that supports
+systemd.
+
 # Installation
 
 Check out the code from git to your local dev machine:
@@ -30,7 +34,7 @@ Install Erlang, Elixir and Node.js:
 ```shell
 asdf install
 ```
-(may need to run this multiple times until everything is installed)
+Run this multiple times until everything is installed (should be twice).
 
 Install libraries into the ASDF Elixir dirs:
 
@@ -92,10 +96,10 @@ Add the host to the groups in the Ansible inventory `ansible/inventory/hosts` fi
 From the `ansible` dir:
 
 Newer versions of Ubuntu (16.04+) ship with Python 3, but the default for Ansible is Python 2.
-Install Python 2:
+If you are running Ubuntu, install Python 2:
 
 ```shell
-ansible-playbook -u root -v -l web-servers playbooks/setup-python.yml -D
+ansible-playbook -u root -v -l elixir-deploy-template playbooks/setup-python.yml -D
 ```
 
 Set up user accounts on the server:
@@ -159,7 +163,7 @@ Install Erlang, Elixir and Node.js as specified in `.tool-versions`:
 ```shell
 asdf install
 ```
-(may need to run this multiple times until everything is installed)
+Run this multiple times until everything is installed (should be twice).
 
 The initial build of Erlang from source can take a while, so you may
 want to run it under `tmux` or `screen`.

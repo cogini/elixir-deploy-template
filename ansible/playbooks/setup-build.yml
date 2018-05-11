@@ -9,10 +9,10 @@
   vars:
     tools_other_packages:
       # Useful utils
-      - ack
-      - htop
-      - psmisc
-      - wget
+      # - ack
+      # - htop
+      # - psmisc
+      # - wget
       # - vim-enhanced
       - tmux
       - git

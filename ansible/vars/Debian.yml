@@ -12,9 +12,6 @@ asdf_optional_dependencies:
   - libtool
   - unzip
 
-  # Node.js
-  - gpg
-
 gpg_pubring_file: pubring.kbx
 
 ansible_build_deps:
