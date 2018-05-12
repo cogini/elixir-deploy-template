@@ -2,7 +2,8 @@
 #
 # Initial bootstrapping
 #
-# On a cloud server where the provisioning process adds a keypair, the initial setup can be:
+# On a cloud server where the provisioning process adds a keypair to the root
+# user, the initial setup can be:
 #
 #   ansible-playbook -u root -v -l web-server-01 playbooks/manage-users.yml -D
 #
@@ -15,7 +16,7 @@
 #
 # On macOS the -k command requires the askpass utility, which is not installed
 # by default, so it falls back to Paramiko, which doesn't understand
-# `.ssh/config`, so we need to specify the IP of the host `ansible_host`.
+# `.ssh/config`, so we need to set host's IP in the `ansible_host` variable.
 #
 #   ansible-playbook -k -u root -v -l web-server-01 playbooks/manage-users.yml --extra-vars "ansible_host=123.45.67.89"
 #
