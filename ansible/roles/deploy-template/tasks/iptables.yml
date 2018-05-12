@@ -1,0 +1,28 @@
+---
+# tasks file for deploy-template/iptables.yml
+
+- block:
+  - name: redirect http port to bounce
+    iptables_raw:
+      name=app_redirect_http
+      weight=50
+      table=nat
+      rules='-A PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports {{ app_http_listen_port }}'
+
+  - name: http with rate limit
+    iptables_raw:
+      name: app_http
+      weight: 50
+      state: present
+      rules: "-A INPUT -p tcp --dport {{ app_http_listen_port }} -m state --state NEW -m hashlimit --hashlimit-name HTTP --hashlimit 5/minute --hashlimit-burst 10 --hashlimit-mode srcip --hashlimit-htable-expire 300000 -j ACCEPT"
+    when: app_iptables_rate_limit_http
+
+  - name: http ports
+    iptables_raw:
+      name=app_http
+      weight=50
+      state=present
+      rules="-A INPUT -p tcp --dport {{ app_http_listen_port }} -j ACCEPT"
+    when: not app_iptables_rate_limit_http
+
+  when: app_redirect_http

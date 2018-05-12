@@ -1,0 +1,96 @@
+---
+# tasks file for iptables
+
+# http://blog.nordeus.com/dev-ops/managing-iptables-with-ansible-the-easy-way.htm
+# http://blog.nordeus.com/files/libraryblog/articles/managing-iptables-with-ansible/iptables_raw.html
+# https://github.com/Nordeus/ansible_iptables_raw
+
+- block:
+  - name: install iptables-services
+    yum: name=iptables-services state=present
+
+  - name: enable iptables service
+    service: name=iptables state=started enabled=yes
+
+  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version|int >= 7
+
+- block:
+  - name: install iptables-persistent
+    apt: name=iptables-persistent state=present
+
+   # - name: enable iptables service
+   #   service: name=iptables state=started enabled=yes
+
+  when: ansible_os_family == 'Debian'
+
+- name: set custom rules
+  iptables_raw:
+    name: 'custom_rules_{{ item.name }}'
+    rules: '{{ item.rules }}'
+    state: '{{ item.state }}'
+    weight: '{{ item.weight|default(omit) }}'
+    table: '{{ item.table|default(omit) }}'
+  with_items: '{{ iptables_custom_rules }}'
+
+- name: delete obsolete rules
+  iptables_raw:
+    name: '{{ item.name }}'
+    table: '{{ item.table|default(omit) }}'
+    state: absent
+  with_items: '{{ iptables_delete_rules }}'
+
+- name: block attacks
+  iptables_raw: >
+    name=block_attacks
+    weight=20
+    rules='-A INPUT -p tcp --tcp-flags ALL NONE -j DROP
+           -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
+           -A INPUT -p tcp --tcp-flags ALL ALL -j DROP'
+
+- name: allow icmp input rate limit
+  iptables_raw:
+    name=icmp_input
+    weight=20
+    state=present
+    rules='-A INPUT -p icmp -m icmp --icmp-type any -m limit --limit 1/second -j ACCEPT'
+  when: iptables_icmp_input_rate_limit_enabled
+
+- name: allow icmp input
+  iptables_raw: >
+    name=icmp_input
+    weight=20
+    state=present
+    rules='-A INPUT -p icmp -m icmp --icmp-type any -j ACCEPT'
+  when: not iptables_icmp_input_rate_limit_enabled
+
+- name: allow ssh
+  iptables_raw: >
+    name=ssh
+    weight=30
+    state=present
+    rules='-A INPUT -p tcp -m multiport --dports {{ iptables_ssh_ports|join(',') }} -j ACCEPT'
+  when: not iptables_ssh_rate_limit
+
+- name: allow ssh rate limit
+  iptables_raw: >
+    name=ssh
+    weight=30
+    state=present
+    rules='-A INPUT -p tcp -m multiport --dports {{ iptables_ssh_ports|join(',') }} -m state --state NEW -m hashlimit --hashlimit-name SSH --hashlimit 1/minute --hashlimit-burst 2 --hashlimit-mode srcip --hashlimit-htable-expire 300000 -j ACCEPT'
+  when: iptables_ssh_rate_limit
+
+- name: set default head rules
+  iptables_raw:
+    name=default_head
+    weight=10
+    keep_unmanaged={{ iptables_keep_unmanaged }}
+    state=present
+    rules='{{ iptables_default_head }}'
+
+- name: set default tail rules
+  iptables_raw:
+    name=default_tail
+    weight=99
+    keep_unmanaged={{ iptables_keep_unmanaged }}
+    state={{ (iptables_default_tail != '' ) | ternary('present', 'absent') }}
+    rules='{{ iptables_default_tail }}'

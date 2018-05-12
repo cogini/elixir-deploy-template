@@ -1,0 +1,4 @@
+---
+# tasks file for nginx
+- include: iptables.yml
+  become: true
