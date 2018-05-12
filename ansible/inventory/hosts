@@ -1,18 +1,20 @@
 [local]
 localhost ansible_sudo=false
 
-[web-servers]
-elixir-deploy-template
-
-[build-servers]
-elixir-deploy-template
-
 # [web-servers]
-# elixir-deploy-template-centos-7
-# elixir-deploy-template-ubuntu-16
-# elixir-deploy-template-ubuntu-18
+# elixir-deploy-template
 
 # [build-servers]
-# elixir-deploy-template-centos-7
-# elixir-deploy-template-ubuntu-16
-# elixir-deploy-template-ubuntu-18
+# elixir-deploy-template
+
+[web-servers]
+elixir-deploy-template-centos-7
+elixir-deploy-template-ubuntu-16
+elixir-deploy-template-ubuntu-18
+elixir-deploy-template-debian-9
+
+[build-servers]
+elixir-deploy-template-centos-7
+elixir-deploy-template-ubuntu-16
+elixir-deploy-template-ubuntu-18
+elixir-deploy-template-debian-9
