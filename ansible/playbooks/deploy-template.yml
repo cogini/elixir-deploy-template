@@ -15,6 +15,6 @@
     app_user: foo
     app_group: foo
     app_http_listen_port: 4001
-    app_restart_method: touch
+    # app_restart_method: touch
   roles:
     - deploy-template
