@@ -12,6 +12,10 @@
   file: path={{ item }} state=directory owner={{ app_user }} group={{ app_group }} mode=0750
   with_items: "{{ app_dirs }}"
 
+- name: Create app flag dir
+  file: path={{ app_shutdown_flag_dir }} state=directory owner={{ deploy_user }} group={{ app_group }} mode=0750
+  when: "app_restart_method == 'touch'"
+
 - name: Create sudoers config for deploy user
   template: src=etc/sudoers.d/app.j2 dest=/etc/sudoers.d/{{ deploy_user }}-{{ app_name }} owner=root group=root mode=0600
   when: "app_restart_method == 'systemctl'"
