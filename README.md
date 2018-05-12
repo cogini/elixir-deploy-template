@@ -6,12 +6,38 @@ apps](https://www.cogini.com/blog/best-practices-for-deploying-elixir-apps/)
 blog post.
 
 It's regularly tested deploying to [Digital Ocean](https://m.do.co/c/65a8c175b9bf),
-with CentOS 7 and Ubuntu 16.04 and 18.04. It should be straightforward to make
-it work with any distro that supports systemd.
+with CentOS 7, Ubuntu 16.04, Ubuntu 18.04 and Debian 9.4. It assumes a distro
+that supports systemd.
+
+The instructions here go through things step by step. You should be able to
+copy and paste and it will work, with some minor changes to configure it for
+your server.
+
+After it's set up, you can deploy a release by logging
+into your server and running:
+
+```shell
+cd ~/build/elixir-deploy-template
+git pull
+
+# Install specified versions of Erlang/Elixir/Node.js
+asdf install
+
+# Build release
+mix deps.get --only prod
+MIX_ENV=prod mix do compile, phx.digest, release
+
+# Deploy locally
+MIX_ENV=prod mix deploy.local
+sudo /bin/systemctl restart deploy-template
+
+# Deploy to remote servers
+ansible-playbook -u deploy -v -l web-servers playbooks/deploy-template.yml --tags deploy --extra-vars ansible_become=false -D
+```
 
 # Installation
 
-Check out the code from git to your local dev machine:
+Check out the code from git to your local dev machine (make a fork, perhaps):
 
 ```shell
 git clone https://github.com/cogini/elixir-deploy-template
