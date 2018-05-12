@@ -59,6 +59,10 @@ config :phoenix, :serve_endpoints, true
 #     config :deploy_template, DeployTemplateWeb.Endpoint, server: true
 #
 
+config :shutdown_flag,
+  flag_file: "/var/tmp/deploy/deploy-template/shutdown.flag",
+  check_delay: 10_000
+
 # Finally import the config/prod.secret.exs
 # which should be versioned separately.
 # import_config "prod.secret.exs"
