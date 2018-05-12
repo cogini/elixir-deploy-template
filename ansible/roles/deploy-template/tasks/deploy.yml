@@ -52,9 +52,11 @@
   when: "app_restart_method == 'systemctl'"
   # when: "ansible_service_mgr == 'systemd' or (ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7')"
 
-- name: Touch restart flag file
+- name: Touch shutdown flag file
   file:
-    path: "{{ app_flag_file }}"
+    path: "{{ app_shutdown_flag_file }}"
     state: touch
     mode: '0660'
+    owner: "{{ deploy_user }}"
+    group: "{{ app_group }}"
   when: "app_restart_method == 'touch'"

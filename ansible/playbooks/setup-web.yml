@@ -4,5 +4,9 @@
 - name: Install common
   hosts: '*'
   become: true
+  vars:
+    iptables_ssh_ports:
+      - 22
   roles:
     - common-minimal
+    - iptables

@@ -15,6 +15,12 @@ app_env: prod
 # HTTP listen port
 app_http_listen_port: 4001
 
+# Redirect port 80 to app_http_listen_port
+app_redirect_http: true
+
+# Whether to rate limit inbound HTTP connections
+app_iptables_rate_limit_http: false
+
 # OS user that deploys / owns the release files
 deploy_user: deploy
 # OS group that deploys / owns the release files
@@ -61,6 +67,8 @@ app_dirs:
   # - "{{ var_dir }}"
   # - "{{ data_dir }}"
 
+app_shutdown_flag_dir: "/var/tmp/deploy/{{ app_name }}"
+app_shutdown_flag_file: "{{ app_shutdown_flag_dir }}/shutdown.flag"
+
 app_restart_method: systemctl
 # app_restart_method: touch
-app_flag_file: "{{ temp_dir }}/restart.flag"

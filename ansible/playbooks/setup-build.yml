@@ -16,9 +16,12 @@
       # - vim-enhanced
       - tmux
       - git
+    iptables_ssh_ports:
+      - 22
   roles:
     - common-minimal
     - tools-other
+    - iptables
 
 - name: install asdf
   hosts: '*'
