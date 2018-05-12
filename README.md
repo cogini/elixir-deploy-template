@@ -237,7 +237,6 @@ PORT=4001 _build/prod/rel/deploy_template/bin/deploy_template foreground
 ```shell
 curl -v http://localhost:4001/
 ```
-or access the machine over the network.
 
 ## Deploy the release
 
@@ -274,6 +273,9 @@ Have a look at the logs:
 # journalctl -r -u deploy-template
 ```
 
+You should also be able to access the machine over the network on port 80
+through the magic of iptables port forwarding.
+
 ## Deploy to a remote machine using Ansible
 
 From your dev machine, install Ansible on the build machine:
@@ -294,10 +296,10 @@ Add the `web-servers` hosts to the `~/.ssh/config` on the deploy machine:
     Host elixir-deploy-template
         HostName 123.45.67.89
 
-We normally maintain the list of servers in a `ssh.config` file in the repo. 
+We normally maintain the list of servers in a `ssh.config` file in the repo.
 See `ansible/ansible.cfg` for options.
 
-Deploy the app:
+From deploy machine, deploy the app:
 
 ```shell
 ansible-playbook -u deploy -v -l web-servers playbooks/deploy-template.yml --tags deploy --extra-vars ansible_become=false -D
@@ -366,6 +368,10 @@ Add [shutdown_flag](https://github.com/cogini/shutdown_flag) to `mix.exs`:
 
     {:shutdown_flag, github: "cogini/shutdown_flag"},
 
-# TODO
+Add to `config/prod.exs`:
 
-* Firewall config
+```elixir
+config :shutdown_flag,
+  flag_file: "/var/tmp/deploy/deploy-template/shutdown.flag",
+  check_delay: 10_000
+```
