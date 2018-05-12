@@ -42,5 +42,7 @@
       - jake
     users_deploy_users:
       - jake
+    users_deploy_groups:
+      - foo
   roles:
     - { role: cogini.users, become: true }
