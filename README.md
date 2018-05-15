@@ -249,6 +249,7 @@ iex> :crypto.strong_rand_bytes(32) |> Base.encode16
 Update `secret_key_base` in `config/prod.secret.exs`:
 
 ```shell
+cp config/prod.secret.exs.sample config/prod.secret.exs
 openssl rand -base64 48
 ```
 
