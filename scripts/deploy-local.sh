@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Deploy app to local server
 
@@ -9,14 +9,14 @@ APP_NAME=deploy-template
 set -e
 # set -o errexit -o xtrace
 
-CURDIR=$PWD
-BINDIR=`dirname $0`
-cd $BINDIR; BINDIR=$PWD; cd $CURDIR
+CURDIR="$PWD"
+BINDIR=$(dirname "$0")
+cd "$BINDIR"; BINDIR="$PWD"; cd "$CURDIR"
 
-BASEDIR=$BINDIR/..
-cd $BASEDIR
+BASEDIR="$BINDIR/.."
+cd "$BASEDIR"
 
 # mix ecto.migrate
 
 mix deploy.local
-sudo /bin/systemctl restart $APP_NAME
+sudo /bin/systemctl restart "$APP_NAME"
