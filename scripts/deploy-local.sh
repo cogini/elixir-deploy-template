@@ -16,5 +16,7 @@ cd $BINDIR; BINDIR=$PWD; cd $CURDIR
 BASEDIR=$BINDIR/..
 cd $BASEDIR
 
+# mix ecto.migrate
+
 mix deploy.local
 sudo /bin/systemctl restart $APP_NAME

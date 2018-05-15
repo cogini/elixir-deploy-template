@@ -184,7 +184,8 @@ Set up the app (create app dirs, etc.):
 ansible-playbook -u $USER -v -l web-servers playbooks/deploy-template.yml --skip-tags deploy -D
 ```
 
-At this point, the web server is set up, but we still need to build and deploy the app code.
+At this point, the web server is set up, but we still need to build and deploy
+the app code.
 
 ## Set up the build server
 
@@ -339,6 +340,31 @@ From deploy machine, deploy the app:
 ```shell
 ansible-playbook -u deploy -v -l web-servers playbooks/deploy-template.yml --tags deploy --extra-vars ansible_become=false -D
 ```
+
+## Database migrations
+
+For a real app, you will generally need a database.
+
+In the simple scenario, a single server is used to build and deploy the app,
+and also runs the db. In that case, we need to log into the build environment
+and create the db after we have set up the build environment:
+
+```shell
+MIX_ENV=prod mix ecto.create
+```
+
+Then, after building the release, but before deploying the code, we need to update
+the db to match the code:
+
+```shell
+MIX_ENV=prod mix ecto.migrate
+```
+
+Surprisingly, the same process also works when we are deploying in a more
+complex cloud environment. We create a build instance in the VPC private subnet
+which has permissions to talk to a shared RDS database. We can then run the
+ecto commands to create and migrate the db, then build the release and deploy
+it via a tool like AWS CodeDeploy.
 
 # Changes
 
