@@ -18,10 +18,10 @@ commands on your dev machine:
 
 ```shell
 # Build release on server
-ssh -A deploy@elixir-deploy-template-centos-7 build/elixir-deploy-template/scripts/build-release.sh
+ssh -A deploy@elixir-deploy-template build/elixir-deploy-template/scripts/build-release.sh
 
 # Deploy locally
-ssh -A deploy@elixir-deploy-template-centos-7 build/elixir-deploy-template/scripts/deploy-local.sh
+ssh -A deploy@elixir-deploy-template build/elixir-deploy-template/scripts/deploy-local.sh
 ```
 
 # Installation
