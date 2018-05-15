@@ -245,6 +245,17 @@ Generate a cookie and put it in `config/cookie.txt`:
 iex> :crypto.strong_rand_bytes(32) |> Base.encode16
 ```
 
+Update `secret_key_base` in `config/prod.secret.exs`:
+
+```shell
+openssl rand -base64 48
+```
+
+```elixir
+config :deploy_template, DeployTemplateWeb.Endpoint,
+  secret_key_base: "xxx"
+```
+
 Build the production release:
 
 ```shell
@@ -362,12 +373,6 @@ Uncomment this:
 
 ```elixir
 config :phoenix, :serve_endpoints, true
-```
-
-Comment this, as we are not using `prod.secret.exs`:
-
-```elixir
-# import_config "prod.secret.exs"
 ```
 
 ## Add Ansible
