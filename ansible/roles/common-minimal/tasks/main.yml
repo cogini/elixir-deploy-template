@@ -15,10 +15,10 @@
 
   when: ansible_os_family == 'RedHat'
 
-# Install cronic
-- name: create /opt/bin
-  file: path=/opt/bin state=directory mode=0755 owner=root
-
-# http://habilis.net/cronic
-- name: install cronic
-  copy: src=opt/bin/cronic dest=/opt/bin/cronic owner=root group=root mode=0755
+# # Install cronic
+# - name: create /opt/bin
+#   file: path=/opt/bin state=directory mode=0755 owner=root
+#
+# # http://habilis.net/cronic
+# - name: install cronic
+#   copy: src=opt/bin/cronic dest=/opt/bin/cronic owner=root group=root mode=0755
