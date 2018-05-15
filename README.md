@@ -1,6 +1,6 @@
 # deploy-template
 
-This is a turn-key example app which shows how to deploy Elixir app based on
+This is a turn-key example app which shows how to deploy a Phoenix app based on
 this [best practices for deploying elixir
 apps](https://www.cogini.com/blog/best-practices-for-deploying-elixir-apps/)
 blog post.
@@ -9,35 +9,24 @@ It's regularly tested deploying to [Digital Ocean](https://m.do.co/c/65a8c175b9b
 with CentOS 7, Ubuntu 16.04, Ubuntu 18.04 and Debian 9.4. It assumes a distro
 that supports systemd.
 
-The instructions here go through things step by step. You should be able to
-copy and paste and it will work, with some minor changes to configure it for
-your server.
-
-After it's set up, you can deploy a release by logging
-into your server and running:
+The instructions here go through things step by step. It's done in a
+relatively straightforward way to make it easier to understand.
+It's certainly possible to automate things and [use Ansible to support more
+complex deployment scenarios](https://www.cogini.com/blog/setting-ansible-variables-based-on-the-environment/).
+For example, after it's set up, you can deploy a release by running these
+commands on your dev machine:
 
 ```shell
-cd ~/build/elixir-deploy-template
-git pull
-
-# Install specified versions of Erlang/Elixir/Node.js
-asdf install
-
-# Build release
-mix deps.get --only prod
-MIX_ENV=prod mix do compile, phx.digest, release
+# Build release on server
+ssh -A deploy@elixir-deploy-template-centos-7 build/elixir-deploy-template/scripts/build-release.sh
 
 # Deploy locally
-MIX_ENV=prod mix deploy.local
-sudo /bin/systemctl restart deploy-template
-
-# Deploy to remote servers
-ansible-playbook -u deploy -v -l web-servers playbooks/deploy-template.yml --tags deploy --extra-vars ansible_become=false -D
+ssh -A deploy@elixir-deploy-template-centos-7 build/elixir-deploy-template/scripts/deploy-local.sh
 ```
 
 # Installation
 
-Check out the code from git to your local dev machine (make a fork, perhaps):
+Check out the code from git to your local dev machine.:
 
 ```shell
 git clone https://github.com/cogini/elixir-deploy-template
@@ -55,7 +44,7 @@ asdf plugin-add elixir
 asdf plugin-add nodejs
 ```
 
-Install Erlang, Elixir and Node.js:
+Install the versions of Erlang, Elixir and Node.js specified in the `.tool-versions` file:
 
 ```shell
 asdf install
@@ -70,7 +59,7 @@ mix local.rebar --force
 mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez --force
 ```
 
-## Initialize the app
+## Build the app
 
 ```shell
 mix deps.get
@@ -89,6 +78,8 @@ open http://localhost:4000/
 
 Install Ansible on your dev machine:
 
+May be as simple as:
+
 ```shell
 pip install ansible
 ```
@@ -101,7 +92,7 @@ for other options.
 An easy option is [Digital Ocean](https://m.do.co/c/65a8c175b9bf).
 Their smallest $5/month Droplet will run Phoenix fine.
 
-Add the host to the `~/.ssh/config` on your dev machine:
+Add the host to the `~/.ssh/config` file on your dev machine:
 
     Host elixir-deploy-template
         HostName 123.45.67.89
@@ -118,18 +109,21 @@ The host name is not important, you can use an existing server. Just use the
 ssh name in the `inventory/hosts` config and in the `ansible-playbook` commands
 below.
 
+(The template has multiple hosts in the groups, comment them out.)
+
 ### Configure the target server using Ansible
 
 From the `ansible` dir:
 
-Newer versions of Ubuntu (16.04+) ship with Python 3, but the default for
-Ansible is Python 2. If you are running Ubuntu, install Python 2:
+Install Python 2 on the server if necessary. Newer versions of Ubuntu (16.04+)
+and Debian ship with Python 3, but the default for Ansible is Python 2:
 
 ```shell
 ansible-playbook -u root -v -l elixir-deploy-template playbooks/setup-python.yml -D
 ```
 
 In this command, `elixir-deploy-template` is the hostname.
+
 
 Edit the `playbooks/manage-users.yml` script to specify user accounts:
 
@@ -166,6 +160,8 @@ Edit the `playbooks/manage-users.yml` script to specify user accounts:
 See [the documentation for the role](https://galaxy.ansible.com/cogini/users/)
 for more details about options, e.g. defining user keys instead of relying on GitHub.
 
+Execute the playbook to set up the users:
+
 ```shell
 ansible-playbook -u root -v -l elixir-deploy-template playbooks/manage-users.yml -D
 ```
@@ -187,6 +183,8 @@ Set up the app (create app dirs, etc.):
 ```shell
 ansible-playbook -u $USER -v -l web-servers playbooks/deploy-template.yml --skip-tags deploy -D
 ```
+
+At this point, the web server is set up, but we still need to build and deploy the app code.
 
 ## Set up the build server
 
@@ -231,8 +229,8 @@ asdf install
 ```
 Run this multiple times until everything is installed (should be twice).
 
-The initial build of Erlang from source can take a while, so you may
-want to run it under `tmux` or `screen`.
+The initial build of Erlang from source can take a while on a small Droplet, so
+you may want to run it under `tmux` or `screen`.
 
 Install libraries into the ASDF dir for the specified Elixir version:
 
