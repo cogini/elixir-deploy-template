@@ -1,8 +1,8 @@
 ---
 # tasks file for deploy-template/setup
 #
-# These tasks set up the target system for the app, creating directories, etc. 
-# Run them from a user with sudo permissions. 
+# These tasks set up the target system for the app, creating directories, etc.
+# Run them from a user with sudo permissions.
 
 - name: Create deploy dirs
   file: path={{ item }} state=directory owner={{ deploy_user }} group={{ app_group }} mode=0750
@@ -13,7 +13,7 @@
   with_items: "{{ app_dirs }}"
 
 - name: Create app flag dir
-  file: path={{ app_shutdown_flag_dir }} state=directory owner={{ deploy_user }} group={{ app_group }} mode=0750
+  file: path={{ app_shutdown_flag_dir }} state=directory owner={{ deploy_user }} group={{ app_group }} mode=0770
   when: "app_restart_method == 'touch'"
 
 - name: Create sudoers config for deploy user
