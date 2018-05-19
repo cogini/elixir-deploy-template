@@ -8,30 +8,39 @@ blog post.
 It is based on a default Phoenix project without Ecto. The [changes](#changes)
 are all additions, so you can easily add them to your own project.
 
-It's tested deploying to [Digital Ocean](https://m.do.co/c/65a8c175b9bf), with
+It's tested deploying to [Digital Ocean](https://m.do.co/c/150575a88316) with
 CentOS 7, Ubuntu 16.04, Ubuntu 18.04 and Debian 9.4.
 
-Don't be scared off by the number of steps here. Real applications have their
-own specific requirements, so you may need to make modifications. This
-template does things in a straightforward way to make it easier to document and
-understand.
+This document goes through the template step to show you how it works, so
+you can make modifications to match your needs.
 
-It's certainly possible to streamline things, e.g. combining multiple playbooks
-into one or [supporting more complex deployment
+It is based on [Ansible](https://www.ansible.com/resources/get-started), which
+is an easy-to-use standard platform for managing servers.
+Unlike edeliver, it is based on a reliable and well documented set of primitives
+to handle logging into servers, uploading files and executing commands.
+It can also be used to [support more complex deployment
 scenarios](https://www.cogini.com/blog/setting-ansible-variables-based-on-the-environment/).
 
-After it's set up, you can deploy updated releases by running scripts from your
-dev machine:
+# Overall approach
+
+1. Set up the web server, running Linux.
+2. Set up a build server matching the architecture of your web server.
+   This can be the same as the web server.
+3. Check out code on the build server from git and build a release.
+4. Deploy the release to the web server.
+
+The actual work of checking out and deploying is handled by simple shell
+scripts which you run on the build server from your dev machine, e.g.:
 
 ```shell
 # Check out latest code and build release on server
-ssh -A deploy@elixir-deploy-template build/elixir-deploy-template/scripts/build-release.sh
+ssh -A deploy@build-server build/elixir-deploy-template/scripts/build-release.sh
 
 # Deploy release
-ssh -A deploy@elixir-deploy-template build/elixir-deploy-template/scripts/deploy-local.sh
+ssh -A deploy@build-server build/elixir-deploy-template/scripts/deploy-local.sh
 ```
 
-# Running the template
+# Up and running
 
 Check out the code from git to your local dev machine:
 
@@ -99,7 +108,7 @@ for other options.
 
 ### Set up a target machine
 
-An easy option is [Digital Ocean](https://m.do.co/c/65a8c175b9bf).
+An easy option is [Digital Ocean](https://m.do.co/c/150575a88316).
 Their smallest $5/month Droplet will run Phoenix fine.
 
 Add the host to the `~/.ssh/config` file on your dev machine:
@@ -116,8 +125,8 @@ Add the host to the groups in the Ansible inventory `ansible/inventory/hosts` fi
     elixir-deploy-template
 
 The host name is not important, you can use an existing server. Just use the
-ssh name in the `inventory/hosts` config and in the `ansible-playbook` commands
-below.
+name from your `.ssh/config` file in the `inventory/hosts` config and in the
+`ansible-playbook` commands below.
 
 (The template has multiple hosts in the groups for testing different OS
 versions, comment them out.)
@@ -140,34 +149,34 @@ In this command, `elixir-deploy-template` is the hostname.
 Edit the `playbooks/manage-users.yml` script to specify user accounts:
 
 ```yaml
-  vars:
-    users_app_user: foo
-    users_app_group: foo
-    users_deploy_user: deploy
-    users_deploy_group: deploy
-    users_users:
-      - user: jake
-        name: "Jake Morrison"
-        github: reachfh
-    users_admin_users:
-      - jake
-    users_app_users:
-      - jake
-    users_deploy_users:
-      - jake
-    users_deploy_groups:
-      - foo
+# OS user account that the app runs under
+users_app_user: foo
+# OS group for the app
+users_app_group: foo
+# OS user account that deploys the app and owns the code files
+users_deploy_user: deploy
+# OS group for deploy
+users_deploy_group: deploy
+# Defines the list of users, but doesn't actually create them
+users_users:
+  - user: jake
+    name: "Jake Morrison"
+    github: reachfh
+# Creates user accounts with sudo permissions
+users_admin_users:
+  - jake
+# Defines users (ssh keys) who can ssh into the app account
+users_app_users:
+  - jake
+# Defines users (ssh keys) who can ssh into the deploy account
+users_deploy_users:
+  - jake
+# Defines secondary groups for the deploy user
+users_deploy_groups:
+  - foo
 ```
 
-* `foo` is the OS account which is used used to run the app.
-* `deploy` is the OS account which is used to deploy the app.
-* `jake` is a live user (me!), change it to match your account.
-* `users_users` defines the list of users.
-* `users_admin_users` defines OS admin users who can sudo.
-* `users_app_users` defines users who can login to the app (foo) account via ssh.
-* `users_deploy_users` defines users who can login to the app (foo) account via ssh.
-* `users_deploy_groups` defines secondary groups that the deploy user should
-  have, e.g. to share access.
+Change the `jake` user (me!) to match your account.
 
 See [the documentation for the role](https://galaxy.ansible.com/cogini/users/)
 for more details about options, e.g. using ssh keys from files instead of
@@ -191,7 +200,7 @@ work on groups of servers simultaneously. Configuration tasks are written to be
 idempotent, so we can run the playbook against all our servers and it will make
 whatever changes are needed to get them up to date.
 
-Set up the app (create app dirs, etc.). 
+Set up the app (create app dirs, etc.).
 
 ```shell
 ansible-playbook -u $USER -v -l web-servers playbooks/deploy-template.yml --skip-tags deploy -D
@@ -199,12 +208,12 @@ ansible-playbook -u $USER -v -l web-servers playbooks/deploy-template.yml --skip
 You can customize locations with vars in `playbooks/deploy-template.yml`.
 
 At this point, the web server is set up, but we still need to build and deploy
-the app code.
+the app code to it.
 
 ## Set up the build server
 
 We need to build the release on the same architecture as it will run on.
-In this case, the build server is the same as the web server.
+In this example, the build server is the same as the web server.
 
 Set up the server, mainly installing ASDF:
 
@@ -385,8 +394,8 @@ MIX_ENV=prod mix ecto.migrate
 Surprisingly, the same process also works when we are deploying in a more
 complex cloud environment. You can create a build instance in the VPC private
 subnet which has permissions to talk to a shared RDS database. You can then run
-the Ecto commands to create and migrate the db, build the release and
-deploy it via AWS CodeDeploy.
+the Ecto commands to create and migrate the db, build the release and deploy it
+via AWS CodeDeploy.
 
 # Changes
 

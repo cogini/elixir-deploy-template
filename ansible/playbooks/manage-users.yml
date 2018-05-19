@@ -28,20 +28,29 @@
 - name: Manage users
   hosts: '*'
   vars:
+    # OS user account that the app runs under
     users_app_user: foo
+    # OS group for the app
     users_app_group: foo
+    # OS user account that deploys the app and owns the code files
     users_deploy_user: deploy
+    # OS group for deploy
     users_deploy_group: deploy
+    # Defines the list of users, but doesn't actually create them
     users_users:
       - user: jake
         name: "Jake Morrison"
         github: reachfh
+    # User accounts created with sudo permissions
     users_admin_users:
       - jake
+    # Users who can ssh into the app user account
     users_app_users:
       - jake
+    # Users who can ssh into the deploy user account
     users_deploy_users:
       - jake
+    # Groups that the deploy user should be a member of
     users_deploy_groups:
       - foo
   roles:
