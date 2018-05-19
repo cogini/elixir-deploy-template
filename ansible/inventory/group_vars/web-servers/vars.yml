@@ -1,0 +1,20 @@
+# Vars for web-servers group
+
+# OS user account that the app runs under
+users_app_user: "{{ app_user }}"
+# OS group for the app
+users_app_group: "{{ users_app_user }}"
+
+# Defines secondary groups for the deploy user
+# This is needed if you are using a flag file to trigger
+# restarts, as the deploy user needs to be able to create a file
+# with permissions such that it can be deleted by the app user.
+users_deploy_groups:
+  - "{{ users_app_user }}"
+
+# Users who can ssh into the app account
+# This is not strictly needed, but can be useful for devs
+#
+# users_app_users: "{{ users_global_admin_users }}"
+# users_app_users:
+#   - jake

@@ -2,12 +2,23 @@
 #
 # ansible-playbook -u $USER -v -l elixir-deploy-template playbooks/setup-web.yml -D
 
+# - name: Bootstrap Python 2
+#   hosts: debian-servers
+#   gather_facts: false
+#   become: true
+#   pre_tasks:
+#     - name: Install python 2
+#       raw: test -e /usr/bin/python2 || (apt -y update && apt install -y python)
+
+- name: Manage users
+  hosts: '*'
+  become: true
+  roles:
+    - cogini.users
+
 - name: Install common
   hosts: '*'
   become: true
-  vars:
-    iptables_ssh_ports:
-      - 22
   roles:
     - common-minimal
     - iptables

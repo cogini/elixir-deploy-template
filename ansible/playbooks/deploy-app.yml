@@ -1,0 +1,17 @@
+# Install Elixir deploy-template
+#
+# Run setup tasks, e.g. installing packages and creating directories.
+# Run this from your dev machine, specifying a user with sudo permissions.
+#
+#   ansible-playbook -u $USER -v -l web-servers playbooks/deploy-app.yml --skip-tags deploy -D
+#
+# Deploy the code.
+# Run this from the build server, from a user account with ssh access to the deploy account on the target machine.
+#
+#   ansible-playbook -u deploy -v -l web-servers playbooks/deploy-app.yml --tags deploy --extra-vars ansible_become=false -D
+#
+
+- hosts: '*'
+  become: true
+  roles:
+    - app

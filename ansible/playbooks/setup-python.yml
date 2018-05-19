@@ -1,4 +1,8 @@
-# Bootstrap python 2, needed on Ubuntu machines which ship with python 3
+# Newer versions of Ubuntu (16.04+) and Debian ship with Python 3, but the
+# default for Ansible is Python 2. It's possible to use the Python 3 that comes
+# with the OS, but when you are getting started with Ansible, this is the most
+# straightforward way. If necessary, run this playbook to install Python 2:
+#
 # ansible-playbook -u root -v -l elixir-deploy-template playbooks/setup-python.yml -D
 
 - name: Bootstrap python 2

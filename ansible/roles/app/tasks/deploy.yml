@@ -1,5 +1,5 @@
 ---
-# tasks file for deploy-template/deploy
+# tasks file for app/deploy
 #
 # These tasks deploy the app. They are run under the deploy user account.
 

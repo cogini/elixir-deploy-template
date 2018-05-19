@@ -1,5 +1,5 @@
 ---
-# tasks file for deploy-template/setup
+# tasks file for app/setup
 #
 # These tasks set up the target system for the app, creating directories, etc.
 # Run them from a user with sudo permissions.

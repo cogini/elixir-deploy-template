@@ -5,23 +5,8 @@
 # http://blog.nordeus.com/files/libraryblog/articles/managing-iptables-with-ansible/iptables_raw.html
 # https://github.com/Nordeus/ansible_iptables_raw
 
-- block:
-  - name: install iptables-services
-    yum: name=iptables-services state=present
-
-  - name: enable iptables service
-    service: name=iptables state=started enabled=yes
-
-  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version|int >= 7
-
-- block:
-  - name: install iptables-persistent
-    apt: name=iptables-persistent state=present
-
-   # - name: enable iptables service
-   #   service: name=iptables state=started enabled=yes
-
-  when: ansible_os_family == 'Debian'
+- name: Install iptables
+  include_tasks: "setup-{{ ansible_os_family }}.yml"
 
 - name: set custom rules
   iptables_raw:

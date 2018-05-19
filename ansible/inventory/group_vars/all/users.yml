@@ -1,0 +1,21 @@
+# This file defines a global list of user accounts and admins.
+# The goal is that it is the same between all projects, so we can copy
+# it unmodified. Put project-level config in `vars.yml` or other files.
+
+# See [the documentation for the role](https://galaxy.ansible.com/cogini/users/)
+# for more details about options, e.g. using ssh keys from files.
+
+# Define user accounts
+users_users:
+  - user: jake
+    name: "Jake Morrison"
+    github: reachfh
+
+# Users with sudo permission who should be set up on all servers.
+# We use this for our ops team and technical managers.
+users_global_admin_users:
+ - jake
+
+# You can set project level admins with the `users_admin_users` var
+# users_admin_users:
+#   - jake

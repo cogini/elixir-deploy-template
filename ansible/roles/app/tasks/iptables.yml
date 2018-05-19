@@ -1,5 +1,5 @@
 ---
-# tasks file for deploy-template/iptables.yml
+# tasks file for app/iptables.yml
 
 - block:
   - name: redirect http port to bounce

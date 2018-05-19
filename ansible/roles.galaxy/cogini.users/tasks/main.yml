@@ -2,7 +2,9 @@
 # tasks file for users
 
 - name: Include OS-specific variables
-  include_vars: "{{ ansible_os_family }}.yml"
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}.yml"
 
 - name: Include OS-specific tasks
   include_tasks: "setup-{{ ansible_os_family }}.yml"

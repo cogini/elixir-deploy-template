@@ -1,0 +1,11 @@
+# These are the default vars that apply to all servers
+
+# OS user account that deploys the app and owns the code files
+users_deploy_user: deploy
+# OS group for deploy
+users_deploy_group: "{{ users_deploy_user }}"
+
+# Ports that the firewall opens for SSH
+# If you are running ssh on a non-standard port, set that here
+iptables_ssh_ports:
+  - 22

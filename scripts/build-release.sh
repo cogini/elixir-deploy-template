@@ -22,6 +22,11 @@ git pull
 
 echo "Updating versions of Erlang/Elixir/Node.js if necessary"
 asdf install
+asdf install
+
+echo "Updating Elixir libs"
+mix local.hex --force
+mix local.rebar --force
 
 echo "Building release"
 mix deps.get --only "$MIX_ENV"

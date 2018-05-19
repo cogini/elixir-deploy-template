@@ -15,6 +15,10 @@
 
   when: ansible_os_family == 'RedHat'
 
+- name: Update packages
+  apt: update_cache=yes
+  when: ansible_os_family == 'Debian'
+
 # # Install cronic
 # - name: create /opt/bin
 #   file: path=/opt/bin state=directory mode=0755 owner=root

@@ -2,7 +2,21 @@
 # Build system setup
 # ansible-playbook -u $USER -v -l elixir-deploy-template playbooks/setup-build.yml -D
 
-- name: install common
+# - name: Bootstrap Python 2
+#   hosts: debian-servers
+#   gather_facts: false
+#   become: true
+#   pre_tasks:
+#     - name: Install python 2
+#       raw: test -e /usr/bin/python2 || (apt -y update && apt install -y python)
+
+- name: Manage users
+  hosts: '*'
+  become: true
+  roles:
+    - cogini.users
+
+- name: Install common
   hosts: '*'
   become: true
   gather_facts: true
@@ -16,25 +30,25 @@
       # - vim-enhanced
       - tmux
       - git
-    iptables_ssh_ports:
-      - 22
   roles:
     - common-minimal
     - tools-other
     - iptables
 
-- name: install asdf
+- name: Install asdf
   hosts: '*'
   become: true
+  gather_facts: true
   vars:
     asdf_version: v0.4.3
-    asdf_user: deploy
+    asdf_user: "{{ users_deploy_user }}"
     asdf_plugins:
       - name: erlang
       - name: elixir
       - name: nodejs
   vars_files:
-      - ../vars/{{ ansible_os_family }}.yml
+      - "../vars/build-{{ ansible_os_family }}.yml"
+      - "../vars/build-{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
   roles:
     - asdf
   tasks:
@@ -43,7 +57,7 @@
         asdf_nodejs_keyring: "{{ asdf_user_home }}/.asdf/keyrings/nodejs"
 
     - name: create keyring for Node.js keys
-      file: path={{ asdf_nodejs_keyring }} state=directory owner={{ asdf_user }} {{ asdf_user }} mode=0700
+      file: path={{ asdf_nodejs_keyring }} state=directory owner={{ asdf_user }} group={{ asdf_user }} mode=0700
 
     - name: import Node.js keys to keyring
       command: "bash -lc '{{ asdf_user_home }}/.asdf/plugins/nodejs/bin/import-release-team-keyring'"
@@ -52,3 +66,21 @@
       become_user: "{{ asdf_user }}"
       environment:
         GNUPGHOME: "{{ asdf_nodejs_keyring }}"
+
+- name: Set up app
+  hosts: '*'
+  become: true
+  become_user: "{{ users_deploy_user }}"
+  tasks:
+    - name: Set vars
+      set_fact:
+        build_base_dir: "{{ asdf_user_home }}/build"
+        build_dir: "{{ asdf_user_home }}/build/{{ app_name }}"
+
+    - name: Create build dir
+      file: path="{{ build_base_dir }}" state=directory owner={{ users_deploy_user }} group={{ users_deploy_group }} mode=0755
+
+    - name: Check out project from git
+      git:
+        repo: "{{ app_repo }}"
+        dest: "{{ build_dir }}"
