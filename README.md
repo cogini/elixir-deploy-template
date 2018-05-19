@@ -30,14 +30,14 @@ scenarios](https://www.cogini.com/blog/setting-ansible-variables-based-on-the-en
 4. Deploy the release to the web server.
 
 The actual work of checking out and deploying is handled by simple shell
-scripts which you run on the build server from your dev machine, e.g.:
+scripts which you run on the build server or from from your dev machine via ssh, e.g.:
 
 ```shell
 # Check out latest code and build release on server
-ssh -A deploy@build-server build/elixir-deploy-template/scripts/build-release.sh
+ssh -A deploy@build-server build/deploy-template/scripts/build-release.sh
 
 # Deploy release
-ssh -A deploy@build-server build/elixir-deploy-template/scripts/deploy-local.sh
+ssh -A deploy@build-server build/deploy-template/scripts/deploy-local.sh
 ```
 
 # Set up dev machine
@@ -284,7 +284,7 @@ MIX_ENV=prod mix do compile, phx.digest, release
 If you are running on the same machine, then you can use the custom
 mix tasks in `lib/mix/tasks/deploy.ex` to deploy locally.
 
-In `mix.exs`, set `deploy_dir` to match the directory structure in the
+In `mix.exs`, set `deploy_dir` to match the directory structure
 created by the Ansible playbook, e.g.:
 
 ```elixir
@@ -337,7 +337,7 @@ On the build server:
 
 ```shell
 ssh -A deploy@elixir-deploy-template
-cd ~/build/elixir-deploy-template/ansible
+cd ~/build/deploy-template/ansible
 ```
 
 Add the servers in the `inventory/hosts` `web-servers` group to `~/.ssh/config`:
