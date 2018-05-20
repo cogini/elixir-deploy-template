@@ -5,3 +5,6 @@
 users_deploy_users: "{{ users_global_admin_users }}"
 # users_deploy_users:
 #   - jake
+
+# App git repo
+app_repo: https://github.com/cogini/elixir-deploy-template

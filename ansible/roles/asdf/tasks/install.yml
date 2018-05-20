@@ -18,6 +18,7 @@
   apt:
     pkg: "{{ item }}"
     install_recommends: no
+    update_cache: yes
     cache_valid_time: "{{ apt_cache_valid_time }}"
   with_items:
     - "{{ asdf_plugin_dependencies }}"

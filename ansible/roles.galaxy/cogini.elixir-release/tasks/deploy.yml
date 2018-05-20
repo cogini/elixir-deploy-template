@@ -1,0 +1,71 @@
+---
+# tasks file for elixir-release/deploy
+#
+# These tasks deploy the app. They are run under the deploy user account.
+
+- name: Set vars
+  set_fact:
+    # Location on local filesystem of release files
+    elixir_release_local_dir: "{{ role_path }}/../../../_build/{{ elixir_release_mix_env }}/rel/{{ elixir_release_name_code }}/releases"
+    # Name of target dir
+    elixir_release_timestamp: "{{ ansible_date_time['iso8601_basic_short'] }}"
+
+- block:
+  - name: Get release version file
+    set_fact:
+      elixir_release_version_file: "{{ elixir_release_local_dir }}/start_erl.data"
+
+  - name: Get release version data
+    set_fact:
+      elixir_release_version_data: "{{ lookup('file', elixir_release_version_file) }}"
+
+  - name: Get app version
+    set_fact:
+      elixir_release_version: "{{ elixir_release_version_data.split(' ')[-1] }}"
+
+  when: elixir_release_version is not defined
+
+- name: Get local release file
+  set_fact:
+    elixir_release_local_release_file: "{{ elixir_release_local_dir }}/{{ elixir_release_version }}/{{ elixir_release_name_code }}.tar.gz"
+
+- name: Create release dir
+  file:
+    path: "{{ elixir_release_releases_dir }}/{{ elixir_release_timestamp }}"
+    state: directory
+    owner: "{{ elixir_release_deploy_user }}"
+    group: "{{ elixir_release_app_group }}"
+    mode: 0750
+
+- block:
+  - name: Upload release
+    unarchive: src={{ elixir_release_local_release_file }} dest={{ elixir_release_releases_dir }}/{{ elixir_release_timestamp }}
+
+  - name: Create current symlink
+    file: src={{ releases_dir }}/{{ release_timestamp }} dest={{ deploy_dir }}/current state=link
+
+  - name: Set permissions on release scripts so app can run them
+    file:
+      path: "{{ item }}"
+      owner: "{{ elixir_release_deploy_user }}"
+      group: "{{ elixir_release_app_group }}"
+      mode: 0750
+    with_items:
+      - "{{ deploy_dir }}/current/bin/{{ elixir_release_name_code }}"
+      - "{{ deploy_dir }}/current/releases/{{ elixir_release_version }}/{{ elixir_release_name_code }}.sh"
+
+  when: not ansible_check_mode
+
+- name: Restart app using systemctl
+  command: sudo /bin/systemctl restart {{ elixir_release_name}}
+  when: "app_restart_method == 'systemctl'"
+  # when: "ansible_service_mgr == 'systemd' or (ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7')"
+
+- name: Touch shutdown flag file
+  file:
+    path: "{{ elixir_release_shutdown_flag_file }}"
+    state: touch
+    mode: '0660'
+    owner: "{{ elixir_release_deploy_user }}"
+    group: "{{ elixir_release_app_group }}"
+  when: "app_restart_method == 'touch'"

@@ -157,29 +157,38 @@ users_global_admin_users:
  - jake
 ```
 
-The `inventory/group_vars/all/app.yml` file specifies the app settings:
+The `inventory/group_vars/web-servers/elixir-release.yml` file specifies the
+app settings:
+
+```yaml
+# A unique prefix for our directories
+# This could be your organization or the overall project
+elixir_release_org: myorg
+
+# External name of the app, used to name directories and the systemd process
+elixir_release_name: deploy-template
+
+# Internal "Elixir" name of the app, used to by Distillery to name directories
+elixir_release_name_code: deploy_template
+
+# Name of your organization or overall project, used to make a unique dir prefix
+elixir_release_org: myorg
+
+# OS user that the app runs under
+elixir_release_app_user: foo
+
+# Port that Phoenix listens on
+elixir_release_http_listen_port: 4001
+
+# Port that app listens on
+iptables_http_app_port: "{{ elixir_release_http_listen_port }}"
+```
+
+The `inventory/group_vars/build-servers/vars.yml` file specifies the build settings:
 
 ```yaml
 # App git repo
 app_repo: https://github.com/cogini/elixir-deploy-template
-
-# External name of the app, used to name directories and the systemd process
-app_name: deploy-template
-
-# Internal "Elixir" name of the app, used to by Distillery to name directories
-app_name_code: deploy_template
-
-# Name of your organization or overall project, used to make a unique dir prefix
-org: myorg
-
-# OS user that the app runs under
-app_user: foo
-
-# Port that Phoenix listens on
-app_http_listen_port: 4001
-
-# Name of your organization or overall project, used to make a unique dir prefix
-org: myorg
 ```
 
 ## Set up web server

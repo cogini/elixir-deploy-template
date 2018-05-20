@@ -41,7 +41,7 @@ the app, not this role.
 
 For example, make a file like `/etc/sudoers.d/deploy-foo`:
 
-    {{ users_deploy_user }} ALL=(ALL) NOPASSWD: /bin/systemctl start {{ app_name }}, /bin/systemctl stop {{ app_name }}, /bin/systemctl restart {{ app_name }}, /bin/systemctl status {{ app_name }}
+    deploy ALL=(ALL) NOPASSWD: /bin/systemctl start foo, /bin/systemctl stop foo, /bin/systemctl restart foo, /bin/systemctl status foo
 
 * App account
 

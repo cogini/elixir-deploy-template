@@ -1,0 +1,9 @@
+---
+- name: Restart app
+  command: sudo /bin/systemctl restart {{ elixir_release_name}}
+  when: "ansible_service_mgr == 'systemd' or (ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7')"
+
+- name: systemctl daemon-reload
+  command: /bin/systemctl daemon-reload
+  when: "ansible_service_mgr == 'systemd' or (ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7')"
+  become: true

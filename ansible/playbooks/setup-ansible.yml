@@ -11,6 +11,6 @@
     tools_other_pip:
       - ansible
   vars_files:
-     - ../vars/{{ ansible_os_family }}.yml
+     - ../vars/build-{{ ansible_os_family }}.yml
   roles:
     - tools-other

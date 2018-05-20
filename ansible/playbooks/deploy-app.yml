@@ -14,4 +14,4 @@
 - hosts: '*'
   become: true
   roles:
-    - app
+    - cogini.elixir-release

@@ -11,8 +11,10 @@ asdf_optional_dependencies:
   - libffi-dev
   - libtool
   - unzip
+  - dirmngr
 
 gpg_pubring_file: pubring.kbx
 
 ansible_build_deps:
-  - python-pip
+  - python3-pip
+  # - python-pip

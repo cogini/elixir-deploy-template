@@ -1,0 +1,58 @@
+---
+# tasks file for elixir-release/setup
+#
+# These tasks set up the target system for the app, creating directories, etc.
+# Run them from a user with sudo permissions.
+
+# Dirs owned by deploy user
+- name: Create deploy dirs
+  file: path={{ item }} state=directory owner={{ elixir_release_deploy_user }} group={{ elixir_release_app_group }} mode=0750
+  with_items:
+    - "{{ elixir_release_deploy_dir }}"
+    - "{{ elixir_release_releases_dir }}"
+
+- name: Create conf dir
+  file: path={{ elixir_release_conf_dir }} state=directory owner={{ elixir_release_deploy_user }} group={{ elixir_release_app_group }} mode=0750
+  when: elixir_release_conf_dir is defined
+
+- name: Create scripts dir
+  file: path={{ elixir_release_scripts_dir }} state=directory owner={{ elixir_release_deploy_user }} group={{ elixir_release_app_group }} mode=0750
+  when: elixir_release_scripts_dir is defined
+
+- name: Create shutdown flag dir
+  file: path={{ elixir_release_shutdown_flag_dir }} state=directory owner={{ elixir_release_deploy_user }} group={{ elixir_release_app_group }} mode=0770
+  when: "elixir_release_restart_method == 'touch'"
+
+
+# Dirs owned/writable by app user
+- name: Create log dir
+  file: path={{ elixir_release_log_dir }} state=directory owner={{ elixir_release_app_user }} group={{ elixir_release_app_group }} mode=0700
+  when: elixir_release_log_dir is defined
+
+- name: Create temp dir
+  file: path={{ elixir_release_temp_dir }} state=directory owner={{ elixir_release_app_user }} group={{ elixir_release_app_group }} mode=0700
+  when: elixir_release_temp_dir is defined
+
+- name: Create var dir
+  file: path={{ elixir_release_var_dir }} state=directory owner={{ elixir_release_app_user }} group={{ elixir_release_app_group }} mode=0700
+  when: elixir_release_var_dir is defined
+
+- name: Create data dir
+  file: path={{ elixir_release_var_dir }} state=directory owner={{ elixir_release_app_user }} group={{ elixir_release_app_group }} mode=0700
+  when: elixir_release_data_dir is defined
+
+
+- name: Create systemd unit
+  template: src=lib/systemd/system/app.service.j2 dest=/lib/systemd/system/{{ elixir_release_name }}.service owner=root group=root mode=0644
+  notify: systemctl daemon-reload
+  # Theoretically ansible_service_mgr is enough, but I have had problems with detection
+  when: "ansible_service_mgr == 'systemd' or (ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7')"
+
+- name: Enable service
+  service: name={{ elixir_release_name }} enabled=yes
+  environment:
+    PATH: /sbin:{{ ansible_env.PATH }}
+
+- name: Create sudoers config for deploy user
+  template: src=etc/sudoers.d/app.j2 dest=/etc/sudoers.d/{{ elixir_release_deploy_user }}-{{ elixir_release_name }} owner=root group=root mode=0600
+  when: "elixir_release_restart_method == 'systemctl'"

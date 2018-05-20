@@ -47,9 +47,10 @@
       - name: elixir
       - name: nodejs
   vars_files:
-      - "../vars/build-{{ ansible_os_family }}.yml"
-      - "../vars/build-{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+    - "../vars/build-{{ ansible_os_family }}.yml"
+    - "../vars/build-{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
   roles:
+    - tools-other
     - asdf
   tasks:
     - name: Set vars
@@ -75,7 +76,7 @@
     - name: Set vars
       set_fact:
         build_base_dir: "{{ asdf_user_home }}/build"
-        build_dir: "{{ asdf_user_home }}/build/{{ app_name }}"
+        build_dir: "{{ asdf_user_home }}/build/{{ elixir_release_name }}"
 
     - name: Create build dir
       file: path="{{ build_base_dir }}" state=directory owner={{ users_deploy_user }} group={{ users_deploy_group }} mode=0755

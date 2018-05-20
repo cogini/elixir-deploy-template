@@ -1,9 +1,8 @@
 # Vars for web-servers group
 
 # OS user account that the app runs under
-users_app_user: "{{ app_user }}"
-# OS group for the app
-users_app_group: "{{ users_app_user }}"
+users_app_user: "{{ elixir_release_app_user }}"
+users_app_group: "{{ elixir_release_app_user }}"
 
 # Defines secondary groups for the deploy user
 # This is needed if you are using a flag file to trigger

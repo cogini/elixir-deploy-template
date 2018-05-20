@@ -13,6 +13,6 @@ BINDIR=$(dirname "$0")
 cd "$BINDIR"; BINDIR="$PWD"; cd "$CURDIR"
 
 BASEDIR="$BINDIR/.."
-cd "$BASEDIR"
+cd "$BASEDIR/ansible"
 
 ansible-playbook -u deploy -v -l web-servers playbooks/deploy-template.yml --tags deploy --extra-vars ansible_become=false -D

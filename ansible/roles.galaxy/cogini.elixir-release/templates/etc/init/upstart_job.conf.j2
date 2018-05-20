@@ -1,0 +1,30 @@
+# {{ ansible_managed }}
+
+description "{{ elixir_release_name }} server"
+
+start on runlevel [2345]
+stop on runlevel [06]
+
+#expect stop
+respawn
+
+limit nofile {{ elixir_release_limit_nofile }} {{ elixir_release_limit_nofile }}
+# limit nofile unlimited unlimited
+
+env LANG=en_US.UTF-8
+export LANG
+
+env MIX_ENV={{ elixir_release_mix_env }}
+export MIX_ENV
+
+env PORT={{ elixir_release_http_listen_port }}"
+export PORT
+
+env RELEASE_MUTABLE_DIR={{ elixir_release_temp_dir }}
+export RELEASE_MUTABLE_DIR
+
+script
+exec su -s /bin/sh -c 'exec "$0" "$@"' {{ elixir_release_app_user }} -- {{ elixir_release_deploy_dir }}/current/bin/{{ elixir_release_name_code }} foreground
+# Log output from the script, useful for debugging startup problems
+# exec 1>>{{ elixir_release_temp_dir }}/upstart.log 2>&1 su -s /bin/sh -c 'exec "$0" "$@"' {{ elixir_release_app_user }} -- {{ elixir_release_deploy_dir }}/current/bin/{{ elixir_release_name_code }} foreground
+end script

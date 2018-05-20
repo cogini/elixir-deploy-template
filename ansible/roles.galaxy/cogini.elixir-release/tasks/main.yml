@@ -1,0 +1,9 @@
+---
+# tasks file for app
+
+- include_tasks: setup.yml
+  become: true
+
+- import_tasks: deploy.yml
+  become: false
+  tags: ['deploy']
