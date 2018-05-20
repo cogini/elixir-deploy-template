@@ -16,5 +16,5 @@ elixir_release_app_user: foo
 # Port that Phoenix listens on
 elixir_release_http_listen_port: 4001
 
-# Port that app listens on
+# Same as above, but configuring firewall
 iptables_http_app_port: "{{ elixir_release_http_listen_port }}"
