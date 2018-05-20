@@ -17,7 +17,7 @@ elixir-deploy-template-ubuntu-18
 elixir-deploy-template-debian-9
 
 # If you are running newer Ubuntu or Debian, add it here to specify that
-# Ansible should use the installed Python 3 interpreter 
+# Ansible should use the installed Python 3 interpreter
 [py3-hosts]
 elixir-deploy-template-ubuntu-16
 elixir-deploy-template-ubuntu-18
