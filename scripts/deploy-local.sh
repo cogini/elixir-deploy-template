@@ -16,6 +16,8 @@ cd "$BINDIR"; BINDIR="$PWD"; cd "$CURDIR"
 BASEDIR="$BINDIR/.."
 cd "$BASEDIR"
 
+source "$HOME/.asdf/asdf.sh"
+
 # mix ecto.migrate
 
 mix deploy.local
