@@ -1,8 +1,8 @@
 # App deployment settings
 # See roles/app/defaults/main.yml for all the options
 
-# Name of your organization or overall project, used to make a unique dir prefix
-org: myorg
+# App git repo
+app_repo: https://github.com/cogini/elixir-deploy-template
 
 # External name of the app, used to name directories and the systemd process
 app_name: deploy-template
@@ -10,14 +10,11 @@ app_name: deploy-template
 # Internal "Elixir" name of the app, used to by Distillery to name directories
 app_name_code: deploy_template
 
+# Name of your organization or overall project, used to make a unique dir prefix
+org: myorg
+
 # OS user that the app runs under
 app_user: foo
 
-# OS group that the app runs under
-app_group: foo
-
 # Port that Phoenix listens on
 app_http_listen_port: 4001
-
-# App git repo
-app_repo: https://github.com/cogini/elixir-deploy-template
