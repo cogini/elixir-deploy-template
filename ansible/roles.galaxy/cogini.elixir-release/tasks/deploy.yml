@@ -42,7 +42,7 @@
     unarchive: src={{ elixir_release_local_release_file }} dest={{ elixir_release_releases_dir }}/{{ elixir_release_timestamp }}
 
   - name: Create current symlink
-    file: src={{ releases_dir }}/{{ release_timestamp }} dest={{ elixir_release_deploy_dir }}/current state=link
+    file: src={{ elixir_release_releases_dir }}/{{ elixir_release_timestamp }} dest={{ elixir_release_deploy_dir }}/current state=link
 
   - name: Set permissions on release scripts so app can run them
     file:
@@ -58,7 +58,7 @@
 
 - name: Restart app using systemctl
   command: sudo /bin/systemctl restart {{ elixir_release_name}}
-  when: "app_restart_method == 'systemctl'"
+  when: "elixir_release_restart_method == 'systemctl'"
   # when: "ansible_service_mgr == 'systemd' or (ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7')"
 
 - name: Touch shutdown flag file
@@ -68,4 +68,4 @@
     mode: '0660'
     owner: "{{ elixir_release_deploy_user }}"
     group: "{{ elixir_release_app_group }}"
-  when: "app_restart_method == 'touch'"
+  when: "elixir_release_restart_method == 'touch'"
