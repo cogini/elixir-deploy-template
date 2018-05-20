@@ -42,7 +42,7 @@
     unarchive: src={{ elixir_release_local_release_file }} dest={{ elixir_release_releases_dir }}/{{ elixir_release_timestamp }}
 
   - name: Create current symlink
-    file: src={{ releases_dir }}/{{ release_timestamp }} dest={{ deploy_dir }}/current state=link
+    file: src={{ releases_dir }}/{{ release_timestamp }} dest={{ elixir_release_deploy_dir }}/current state=link
 
   - name: Set permissions on release scripts so app can run them
     file:
@@ -51,8 +51,8 @@
       group: "{{ elixir_release_app_group }}"
       mode: 0750
     with_items:
-      - "{{ deploy_dir }}/current/bin/{{ elixir_release_name_code }}"
-      - "{{ deploy_dir }}/current/releases/{{ elixir_release_version }}/{{ elixir_release_name_code }}.sh"
+      - "{{ elixir_release_deploy_dir }}/current/bin/{{ elixir_release_name_code }}"
+      - "{{ elixir_release_deploy_dir }}/current/releases/{{ elixir_release_version }}/{{ elixir_release_name_code }}.sh"
 
   when: not ansible_check_mode
 
