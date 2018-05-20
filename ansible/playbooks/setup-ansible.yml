@@ -9,6 +9,7 @@
   vars:
     tools_other_packages: "{{ ansible_build_deps }}"
     tools_other_pip:
+      - paramiko
       - ansible
   vars_files:
      - ../vars/build-{{ ansible_os_family }}.yml
