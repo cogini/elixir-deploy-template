@@ -37,7 +37,8 @@ end
 environment :prod do
   set include_erts: true
   set include_src: false
-  # set cookie: File.read!("config/cookie.txt") |> String.to_atom
+  set cookie: File.read!("config/cookie.txt") |> String.to_atom
+  # set cookie: :prod
   set vm_args: "rel/vm.args.eex"
 end
 
