@@ -157,14 +157,10 @@ users_global_admin_users:
  - jake
 ```
 
-The `inventory/group_vars/web-servers/elixir-release.yml` file specifies the
+The `inventory/group_vars/all/elixir-release.yml` file specifies the
 app settings:
 
 ```yaml
-# A unique prefix for our directories
-# This could be your organization or the overall project
-elixir_release_org: myorg
-
 # External name of the app, used to name directories and the systemd process
 elixir_release_name: deploy-template
 
