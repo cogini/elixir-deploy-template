@@ -24,12 +24,12 @@ app_iptables_rate_limit_http: false
 # OS user that deploys / owns the release files
 deploy_user: deploy
 # OS group that deploys / owns the release files
-deploy_group: deploy
+deploy_group: "{{ deploy_user }}"
 
 # OS user that the app runs under
 app_user: foo
 # OS group that the app runs under
-app_group: foo
+app_group: "{{ app_user }}"
 
 # Location of per-machine config files
 conf_dir: /etc/{{ app_name }}
