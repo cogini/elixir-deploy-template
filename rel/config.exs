@@ -30,15 +30,15 @@ environment :dev do
   # dev mode.
   set dev_mode: true
   set include_erts: false
-  set include_system_libs: false
   set cookie: :dev
+  set vm_args: "rel/vm.args.eex"
 end
 
 environment :prod do
   set include_erts: true
   set include_src: false
-  set include_system_libs: true
-  set cookie: File.read!("config/cookie.txt") |> String.to_atom
+  # set cookie: File.read!("config/cookie.txt") |> String.to_atom
+  set vm_args: "rel/vm.args.eex"
 end
 
 # You may define one or more releases in this file.

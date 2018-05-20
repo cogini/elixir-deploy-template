@@ -240,12 +240,6 @@ background.  Create a deploy key in GitHub so it can access to your source and
 add the ssh key on the build server to the `deploy` user account on the prod
 servers so the CI server can push releases.
 
-Generate a cookie and put it in `config/cookie.txt`:
-
-```elixir
-iex> :crypto.strong_rand_bytes(32) |> Base.encode16
-```
-
 Update `secret_key_base` in `config/prod.secret.exs`:
 
 ```shell
