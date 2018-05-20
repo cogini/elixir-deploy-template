@@ -11,9 +11,6 @@ are all additions, so you can easily add them to your own project.
 It's tested deploying to [Digital Ocean](https://m.do.co/c/150575a88316) with
 CentOS 7, Ubuntu 16.04, Ubuntu 18.04 and Debian 9.4.
 
-This document goes through the template step to show you how it works, so
-you can make modifications to match your needs.
-
 It is based on [Ansible](https://www.ansible.com/resources/get-started), which
 is an easy-to-use standard platform for managing servers.
 Unlike edeliver, it is based on a reliable and well documented set of primitives
@@ -25,12 +22,13 @@ scenarios](https://www.cogini.com/blog/setting-ansible-variables-based-on-the-en
 
 1. Set up the web server, running Linux.
 2. Set up a build server matching the architecture of the web server.
-   This can be the same as the web server or different.
+   This can be the same as the web server.
 3. Check out code on the build server from git and build a release.
 4. Deploy the release to the web server.
 
 The actual work of checking out and deploying is handled by simple shell
-scripts which you run on the build server or from from your dev machine via ssh, e.g.:
+scripts which you run on the build server or from from your dev machine via
+ssh, e.g.:
 
 ```shell
 # Check out latest code and build release on server
@@ -83,12 +81,12 @@ Build the app the same as you normally would:
 ```shell
 mix deps.get
 mix deps.compile
+mix compile
 ```
 
 At this point you should be able to run the app locally with:
 
 ```shell
-mix compile
 iex -S mix phx.server
 open http://localhost:4000/
 ```
@@ -115,12 +113,12 @@ Their smallest $5/month Droplet will run Phoenix fine.
 
 ### Define servers
 
-Add the host to the `~/.ssh/config` file on your dev machine:
+Add the hosts to the `~/.ssh/config` file on your dev machine:
 
     Host web-server
         HostName 123.45.67.89
 
-Add the host to the groups in the Ansible inventory `ansible/inventory/hosts`
+Add the hosts to the groups in the Ansible inventory `ansible/inventory/hosts`
 file in the project:
 
     [web-servers]
@@ -132,6 +130,9 @@ file in the project:
 The host name is not important, you can use an existing server. Just use the
 name from your `.ssh/config` file in the `inventory/hosts` config and in the
 `ansible-playbook` commands below.
+
+If you are using a recent Ubuntu or Debian version that defaults to Python 3,
+add the host to the `[py3-hosts]` group.
 
 (The template has multiple hosts in the groups for testing different OS
 versions, comment them out.)
@@ -159,26 +160,26 @@ users_global_admin_users:
 The `inventory/group_vars/all/app.yml` file specifies the app settings:
 
 ```yaml
-# Name of your organization or overall project, used to make a unique dir prefix
-org: myorg
+# App git repo
+app_repo: https://github.com/cogini/elixir-deploy-template
 
-# The external name of the app, used to name directories and the systemd process
+# External name of the app, used to name directories and the systemd process
 app_name: deploy-template
 
-# The internal "Elixir" name of the app, used to by Distillery to name directories
+# Internal "Elixir" name of the app, used to by Distillery to name directories
 app_name_code: deploy_template
+
+# Name of your organization or overall project, used to make a unique dir prefix
+org: myorg
 
 # OS user that the app runs under
 app_user: foo
 
-# OS group that the app runs under
-app_group: foo
-
 # Port that Phoenix listens on
 app_http_listen_port: 4001
 
-# App git repo
-app_repo: https://github.com/cogini/elixir-deploy-template
+# Name of your organization or overall project, used to make a unique dir prefix
+org: myorg
 ```
 
 ## Set up web server
@@ -212,7 +213,7 @@ This can be the same as the web server or a separate server.
 Set up the server, e.g. install ASDF:
 
 ```shell
-ansible-playbook -u $USER -v -l build-servers playbooks/setup-build.yml -D
+ansible-playbook -u root -v -l build-servers playbooks/setup-build.yml -D
 ```
 
 ## Build the app
@@ -220,7 +221,7 @@ ansible-playbook -u $USER -v -l build-servers playbooks/setup-build.yml -D
 Log into the `deploy` user on the build machine:
 
 ```shell
-ssh -A deploy@elixir-deploy-template
+ssh -A deploy@build-server
 ```
 
 The `-A` flag on the ssh command gives the session on the server access to your
@@ -284,8 +285,8 @@ MIX_ENV=prod mix do compile, phx.digest, release
 If you are running on the same machine, then you can use the custom
 mix tasks in `lib/mix/tasks/deploy.ex` to deploy locally.
 
-In `mix.exs`, set `deploy_dir` to match the directory structure
-created by the Ansible playbook, e.g.:
+In `mix.exs`, set `deploy_dir` to match Ansible, i.e.
+`deploy_dir: /opt/{{ org }}/{{ app_name }}`:
 
 ```elixir
 deploy_dir: "/opt/myorg/deploy-template/",
@@ -336,7 +337,7 @@ ansible-playbook -u $USER -v -l build-servers playbooks/setup-ansible.yml -D
 On the build server:
 
 ```shell
-ssh -A deploy@elixir-deploy-template
+ssh -A deploy@build-server
 cd ~/build/deploy-template/ansible
 ```
 
@@ -386,7 +387,8 @@ MIX_ENV=prod mix ecto.migrate
 Surprisingly, the same process also works when we are deploying in a more
 complex AWS cloud environment. Create a build instance in the VPC private
 subnet which has permissions to talk to the RDS database. Run the Ecto commands
-to create and migrate the db, build the release and deploy it via AWS CodeDeploy.
+to create and migrate the db, build the release and deploy it via AWS
+CodeDeploy.
 
 # Changes
 
