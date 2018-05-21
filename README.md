@@ -184,14 +184,14 @@ elixir_release_name_code: deploy_template
 # Name of your organization or overall project, used to make a unique dir prefix
 elixir_release_org: myorg
 
-# OS user that the app runs under
+# OS user the app runs under
 elixir_release_app_user: foo
+
+# OS user for deploy
+elixir_release_deploy_user: deploy
 
 # Port that Phoenix listens on
 elixir_release_http_listen_port: 4001
-
-# Same as above, but configuring firewall
-iptables_http_app_port: "{{ elixir_release_http_listen_port }}"
 ```
 
 The `inventory/group_vars/build-servers/vars.yml` file specifies the build settings:
@@ -223,11 +223,11 @@ ansible-playbook -u $USER -v -l web-servers playbooks/deploy-app.yml --skip-tags
 ```
 
 Configure runtime secrets, setting the `$HOME/.erlang.cookie` file and
-generates a Conform file at `/etc/deploy-template/deploy_template.conf` with
+generate a Conform file at `/etc/deploy-template/deploy_template.conf` with
 the `secret_key_base`:
 
 ```shell
-ansible-playbook --vault-password-file vault.key -u $USER -v -l web-servers playbooks/config-web.yml -D
+ansible-playbook -u $USER -v -l web-servers playbooks/config-web.yml -D
 ```
 
 At this point, the web server is set up, but we need to build and deploy
@@ -259,7 +259,7 @@ Ansible without the web server needing to trust the build server.
 
 If you are using a CI server to build and deploy code, then it runs in the
 background.  Create a deploy key in GitHub so it can access to your source and
-add the ssh key on the build server to the `deploy` user account on the prod
+add the ssh key on the build server to the `deploy` user account on the web
 servers so the CI server can push releases.
 
 See below for discussion about managing secrets.
@@ -298,7 +298,7 @@ If you are running on the same machine, then you can use the custom
 mix tasks in `lib/mix/tasks/deploy.ex` to deploy locally.
 
 In `mix.exs`, set `deploy_dir` to match Ansible, i.e.
-`deploy_dir: /opt/{{ org }}/{{ app_name }}`:
+`deploy_dir: /opt/{{ org }}/{{ elixir_release_name }}`:
 
 ```elixir
 deploy_dir: "/opt/myorg/deploy-template/",
@@ -317,10 +317,9 @@ MIX_ENV=prod mix deploy.local
 sudo /bin/systemctl restart deploy-template
 ```
 
-This assumes that the build is being done under the `deploy` user, who owns
-the files under `/opt/myorg/deploy-template` and has a special `/etc/sudoers.d`
-config which allows it to run the `/bin/systemctl restart deploy-template`
-command.
+The build is being done under the `deploy` user, who owns the files under
+`/opt/myorg/deploy-template` and has a special `/etc/sudoers.d` config which
+allows it to run the `/bin/systemctl restart deploy-template` command.
 
 You should be able to connect to the app supervised by systemd:
 ```shell
@@ -336,7 +335,8 @@ Have a look at the logs:
 You should also be able to access the machine over the network on port 80
 through the magic of [iptables port forwarding](https://www.cogini.com/blog/port-forwarding-with-iptables/).
 
-You can get a console on the running app by logging in as the `foo` user and running:
+You can get a console on the running app by logging in as the app's `foo` user
+and running:
 
 ```shell
 /opt/myorg/deploy-template/scripts/remote_console.sh
@@ -364,8 +364,8 @@ Add the servers in the `ansible/inventory/hosts` `web-servers` group to `~/.ssh/
     Host web-server
         HostName 123.45.67.89
 
-For larger projects, we normally maintain the list of servers in a `ssh.config`
-file in the repo. See `ansible/ansible.cfg`.
+For projects with lots of servers, we normally maintain the list of servers in
+a `ssh.config` file in the repo. See `ansible/ansible.cfg` for config.
 
 ### Deploy the app
 
@@ -390,30 +390,27 @@ it into source control. Only people with the key can read it.
 There are trade-offs in managing secrets.
 
 For a small team of devs who are also the admins, then you trust your
-developers and your own dev machine. It's better not to have secrets in the
-build environment, though. You can push the prod secrets directly to the web
-servers.
+developers and your own dev machine with the secrets. It's better not to have
+secrets in the build environment, though. You can push the prod secrets
+directly from your dev machine to the web servers. If you are using a 3rd-party
+CI server, then that goes double. You don't want to give the CI service access
+to your production keys.
 
-If you are using a 3rd-party CI server, then that goes double. You don't want
-to give the CI service access to your production keys.
-
-For more secure applications, it's better if developers don't have access to
-the prod keys. You can give the vault key to your ops team, or use different
-keys for different environments.
+For secure applications like health care, developers should not have access to
+the prod keys. You can restrict vault key access to your ops team, or use
+different keys for different environments.
 
 You can also set up a build and deploy server in the cloud which has access to
-the keys and configures the production instances.
+the keys and configure the the production instances from it. When we run
+in an auto scaling group, we build an AMI with [Packer](https://www.packer.io/)
+and Ansible, putting the keys on it the same way. Even better, however, is to
+not store keys on the server at all. We can pull them when the app starts up,
+reading from an S3 bucket or Amazon's KMS, with access controlled by IAM
+instance roles.
 
-When we are running in an auto scaling group, then we need to build a "read
-only" AMI. We can build an AMI with [Packer](https://www.packer.io/) and
-Ansible and use the same approach to put the keys on it matching the
-environment (dev/staging/prod).
-
-Even better, however, is to not store keys on the server at all. We can pull
-them when the app starts up, reading from an S3 bucket (controlled by IAM
-instance roles) or Amazon's KMS.
-
-The one thing that needs to be there at startup is the Erlang cookie.
+The one thing that really needs to be there at startup is the Erlang cookie,
+everything else we can pull at runtime. If we are not using the Erlang distribution
+protocol, then we don't need to share it, it just needs to be secure. 
 
 The following shows describes how you can use the vault.
 
@@ -423,9 +420,9 @@ Generate a vault key and put it in the file `ansible/vault.key`:
 openssl rand -hex 16
 ```
 
-You can specify it when you are running a playbook with the
+You can specify the key when you are running a playbook with the
 `--vault-password-file vault.key` option, or you can make the vault key always
-available, by setting it in `ansible.cfg`:
+available by setting it in `ansible/ansible.cfg`:
 
     vault_password_file = vault.key
 
@@ -451,7 +448,7 @@ erlang_cookie: !vault |
           36323866346139666462
 ```
 
-Generate a `secret_key_base` for the server:
+Generate a `secret_key_base` for the server the same way:
 
 ```shell
 openssl rand -base64 48 | ansible-vault encrypt_string --vault-id vault.key --stdin-name 'secret_key_base'
@@ -472,7 +469,7 @@ the build server:
 ansible-playbook --vault-password-file vault.key -u $USER -v -l build-servers playbooks/config-build.yml -D
 ```
 
-TODO: link to config article when it's live
+TODO: link to config blog post when it's live
 
 ## Database migrations
 
@@ -495,11 +492,11 @@ update the db to match the code:
 MIX_ENV=prod mix ecto.migrate
 ```
 
-Surprisingly, the same process also works when we are deploying in a more
-complex AWS cloud environment. Create a build instance in the VPC private
-subnet which has permissions to talk to the RDS database. Run the Ecto commands
-to create and migrate the db, build the release and deploy it via AWS
-CodeDeploy.
+Surprisingly, the same process also works when we are deploying in an AWS cloud
+environment. Create a build instance in the VPC private subnet which has
+permissions to talk to the RDS database. Run the Ecto commands to create and
+migrate the db, build the release, then do a Blue/Green deployment to the ASG
+using AWS CodeDeploy.
 
 # Changes
 
@@ -567,13 +564,11 @@ Add [Conform])https://github.com/bitwalker/conform) to `deps` in `mix.exs`:
  {:conform, "~> 2.2"}
 ```
 
-Generate schema:
+Generate schema to the `config/deploy_template.schema.exs` file.
 
 ```elixir
 mix conform.new
 ```
-
-Result is in `config/deploy_template.schema.exs`.
 
 Generate a sample `deploy_template.dev.conf` file:
 
@@ -581,10 +576,17 @@ Generate a sample `deploy_template.dev.conf` file:
 mix conform.configure
 ```
 
-Integrate with Distillery, by adding to `rel/config.exs`:
+Integrate with Distillery, by adding `plugin Conform.ReleasePlugin`
+to `rel/config.exs`:
 
 ```elixir
-plugin Conform.ReleasePlugin
+release :deploy_template do
+  set version: current_version(:deploy_template)
+  set applications: [
+    :runtime_tools
+  ]
+  plugin Conform.ReleasePlugin
+end
 ```
 
 ## Add shutdown_flag library
