@@ -10,8 +10,13 @@ elixir_release_name_code: deploy_template
 # Name of your organization or overall project, used to make a unique dir prefix
 elixir_release_org: myorg
 
-# OS user that the app runs under
+# OS user the app runs under
 elixir_release_app_user: foo
+elixir_release_app_group: "{{ elixir_release_app_user }}"
+
+# OS user for deploy
+elixir_release_deploy_user: deploy
+elixir_release_deploy_group: "{{ elixir_release_deploy_user }}"
 
 # Port that Phoenix listens on
 elixir_release_http_listen_port: 4001
