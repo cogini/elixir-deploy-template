@@ -40,12 +40,12 @@ elixir_release_releases_dir: "{{ elixir_release_deploy_dir }}/releases"
 # Location for app temp files
 elixir_release_temp_dir: /var/tmp/{{ elixir_release_org }}/{{ elixir_release_name }}
 
+# Location of runtime scripts, e.g. used in cron jobs
+elixir_release_scripts_dir: "{{ elixir_release_deploy_dir }}/scripts"
+
 # These dirs are only created if they are defined
 # Location of per-machine config files
 # elixir_release_conf_dir: /etc/{{ elixir_release_name }}
-
-# Location of runtime scripts, e.g. used in cron jobs
-# elixir_release_scripts_dir: "{{ elixir_release_deploy_dir }}/scripts"
 
 # Location of runtime logs
 # elixir_release_log_dir: /var/log/{{ elixir_release_name }}

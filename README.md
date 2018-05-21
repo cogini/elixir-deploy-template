@@ -336,6 +336,12 @@ Have a look at the logs:
 You should also be able to access the machine over the network on port 80
 through the magic of [iptables port forwarding](https://www.cogini.com/blog/port-forwarding-with-iptables/).
 
+You can get a console on the running app by logging in as the `foo` user and running:
+
+```shell
+/opt/myorg/deploy-template/scripts/remote_console.sh
+```
+
 ## Deploy to a remote machine using Ansible
 
 ### Install Ansible on the build machine

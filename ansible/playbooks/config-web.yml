@@ -11,6 +11,7 @@
   hosts: '*'
   become: true
   gather_facts: true
+  no_log: true
   tasks:
     - name: Set erlang_cookie
       set_fact:
@@ -21,10 +22,9 @@
       copy:
         content: "{{ erlang_cookie }}"
         dest: "/home/{{ elixir_release_app_user }}/.erlang.cookie"
-        owner: "{{ elixir_release_deploy_user }}"
+        owner: "{{ elixir_release_app_user }}"
         group: "{{ elixir_release_app_group }}"
-        mode: "0640"
-      no_log: true
+        mode: "0400"
 
     - name: Set secret_key_base
       set_fact:
@@ -38,4 +38,3 @@
         owner: "{{ elixir_release_deploy_user }}"
         group: "{{ elixir_release_app_group }}"
         mode: 0640
-      no_log: true

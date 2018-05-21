@@ -1,6 +1,6 @@
 # Web system setup
 #
-# ansible-playbook -u $USER -v -l elixir-deploy-template playbooks/setup-web.yml -D
+# ansible-playbook -u $USER -v -l web-servers playbooks/setup-web.yml -D
 
 # - name: Bootstrap Python 2
 #   hosts: debian-servers
