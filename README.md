@@ -561,7 +561,7 @@ Add `lib/mix/tasks/deploy.ex`
 
 ## Add Conform for configuration
 
-Add [Conform])https://github.com/bitwalker/conform) to `deps` in `mix.exs`:
+Add [Conform](https://github.com/bitwalker/conform) to `deps` in `mix.exs`:
 
 ```elixir
  {:conform, "~> 2.2"}
