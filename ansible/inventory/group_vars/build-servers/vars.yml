@@ -1,10 +1,10 @@
 # Vars for build-servers group
 
+# App git repo
+app_repo: https://github.com/cogini/elixir-deploy-template
+
 # Users who can ssh into the deploy account
 # This is needed to run the build and deploy scripts
 users_deploy_users: "{{ users_global_admin_users }}"
 # users_deploy_users:
 #   - jake
-
-# App git repo
-app_repo: https://github.com/cogini/elixir-deploy-template
