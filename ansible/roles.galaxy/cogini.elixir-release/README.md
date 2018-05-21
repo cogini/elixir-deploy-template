@@ -126,6 +126,10 @@ Location of app data files
 
     elixir_release_data_dir: "{{ elixir_release_var_dir }}/data"
 
+Path to conform conf file
+
+    elixir_release_conform_conf_path: "{{ elixir_release_conf_dir }}/{{ elixir_release_name_code }}.conf"
+
 Location of flag dir
 
     elixir_release_shutdown_flag_dir: "/var/tmp/{{ elixir_release_deploy_user }}/{{ elixir_release_name }}"

@@ -4,6 +4,9 @@
 - include_tasks: setup.yml
   become: true
 
+# - include_tasks: config.yml
+#   become: true
+
 - import_tasks: deploy.yml
   become: false
   tags: ['deploy']

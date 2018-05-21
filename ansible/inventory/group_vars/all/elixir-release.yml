@@ -23,3 +23,9 @@ elixir_release_http_listen_port: 4001
 
 # Same as above, but configuring firewall
 iptables_http_app_port: "{{ elixir_release_http_listen_port }}"
+
+# Config dir
+elixir_release_conf_dir: "/etc/{{ elixir_release_name }}"
+
+# Path to conform conf file
+elixir_release_conform_conf_path: "{{ elixir_release_conf_dir }}/{{ elixir_release_name_code }}.conf"

@@ -1,0 +1,13 @@
+---
+# tasks file for elixir-release/config
+#
+# These tasks configure the app
+# Run them from a user with sudo permissions.
+- name: Create conf file
+  template:
+    src: etc/app.conf.j2
+    dest: "{{ elixir_release_conform_conf_path }}"
+    owner: "{{ elixir_release_deploy_user }}"
+    group: "{{ elixir_release_app_group }}"
+    mode: 0640
+  when: elixir_release_conform_conf_path is defined

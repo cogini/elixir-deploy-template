@@ -1,12 +1,22 @@
 ---
 # Configure web
+#
+# Use encrypted values defined in ansible/inventory/group_vars/web-servers/secrets.yml
 # ansible-playbook --vault-password-file vault.key -u $USER -v -l web-servers playbooks/config-web.yml -D
+#
+# Generate new values
+# ansible-playbook -u $USER -v -l web-servers playbooks/config-web.yml -D
 
 - name: Configure web
   hosts: '*'
   become: true
   gather_facts: true
   tasks:
+    - name: Set erlang_cookie
+      set_fact:
+        erlang_cookie: "{{ lookup('password', '/tmp/erlang_cookie.txt') }}"
+      when: erlang_cookie is not defined
+
     - name: Set Erlang cookie file
       copy:
         content: "{{ erlang_cookie }}"
@@ -14,4 +24,18 @@
         owner: "{{ elixir_release_deploy_user }}"
         group: "{{ elixir_release_app_group }}"
         mode: "0640"
+      no_log: true
+
+    - name: Set secret_key_base
+      set_fact:
+        secret_key_base: "{{ lookup('password', '/tmp/secret_key_base.txt length=64') }}"
+      when: secret_key_base is not defined
+
+    - name: Create Conform conf file
+      template:
+        src: ../templates/etc/app.conf.j2
+        dest: "{{ elixir_release_conform_conf_path }}"
+        owner: "{{ elixir_release_deploy_user }}"
+        group: "{{ elixir_release_app_group }}"
+        mode: 0640
       no_log: true
