@@ -1,0 +1,17 @@
+---
+# Configure web
+# ansible-playbook --vault-password-file vault.key -u $USER -v -l web-servers playbooks/config-web.yml -D
+
+- name: Configure web
+  hosts: '*'
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Set Erlang cookie file
+      copy:
+        content: "{{ erlang_cookie }}"
+        dest: "/home/{{ elixir_release_app_user }}/.erlang.cookie"
+        owner: "{{ elixir_release_deploy_user }}"
+        group: "{{ elixir_release_app_group }}"
+        mode: "0640"
+      no_log: true
