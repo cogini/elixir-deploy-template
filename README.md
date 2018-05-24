@@ -27,7 +27,7 @@ scenarios](https://www.cogini.com/blog/setting-ansible-variables-based-on-the-en
 4. Deploy the release to the web server.
 
 The actual work of checking out and deploying is handled by simple shell
-scripts which you run on the build server or from from your dev machine via
+scripts which you run on the build server or from your dev machine via
 ssh, e.g.:
 
 ```shell
@@ -74,7 +74,7 @@ mix local.rebar --force
 mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez --force
 ```
 
-## Build the app
+## Confirm that it works
 
 Build the app the same as you normally would:
 
@@ -93,9 +93,7 @@ open http://localhost:4000/
 
 ## Install Ansible
 
-Install Ansible on your dev machine:
-
-May be as simple as:
+Install Ansible on your dev machine. May be as simple as:
 
 ```shell
 pip install ansible
@@ -127,9 +125,9 @@ file in the project:
     [build-servers]
     web-server
 
-The host name is not important, you can use an existing server. Just use the
-name from your `.ssh/config` file in the `inventory/hosts` config and in the
-`ansible-playbook` commands below.
+The host name is not important, you can use an existing server. Use the
+host name from your `.ssh/config` file in the `inventory/hosts` config and in
+the `ansible-playbook` commands below.
 
 If you are using a recent Ubuntu or Debian version that defaults to Python 3,
 add the host to the `[py3-hosts]` group.
@@ -166,10 +164,9 @@ To generate an ssh key:
 ```shell
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 ```
-Set a pass phrase to protect access to your key, using `ssh-add` to remember
-it so you don't have to enter it every time. Add your `~/.ssh/id_rsa.pub`
-key to your GitHub account.
-
+Set a pass phrase to protect access to your key. Modern Linux and macOS will
+remember your pass phrase so you don't have to enter it every time (see `ssh-add`).
+Add your `~/.ssh/id_rsa.pub` key to your GitHub account.
 
 The `inventory/group_vars/all/elixir-release.yml` file specifies the
 app settings:
@@ -194,7 +191,9 @@ elixir_release_deploy_user: deploy
 elixir_release_http_listen_port: 4001
 ```
 
-The `inventory/group_vars/build-servers/vars.yml` file specifies the build settings:
+The `inventory/group_vars/build-servers/vars.yml` file specifies the build settings.
+
+Set the name of the repo to be checked out on the build server:
 
 ```yaml
 # App git repo
@@ -294,8 +293,8 @@ it can take a long time. You may want to run it under `tmux`.
 
 ## Deploy the release locally
 
-If you are running on the same machine, then you can use the custom
-mix tasks in `lib/mix/tasks/deploy.ex` to deploy locally.
+If you are building on the web web server, then you can use the custom mix
+tasks in `lib/mix/tasks/deploy.ex` to deploy locally.
 
 In `mix.exs`, set `deploy_dir` to match Ansible, i.e.
 `deploy_dir: /opt/{{ org }}/{{ elixir_release_name }}`:
@@ -321,7 +320,10 @@ The build is being done under the `deploy` user, who owns the files under
 `/opt/myorg/deploy-template` and has a special `/etc/sudoers.d` config which
 allows it to run the `/bin/systemctl restart deploy-template` command.
 
-You should be able to connect to the app supervised by systemd:
+### Verify it works
+
+Make a request to the app supervised by systemd:
+
 ```shell
 curl -v http://localhost:4001/
 ```
@@ -332,11 +334,11 @@ Have a look at the logs:
 # journalctl -r -u deploy-template
 ```
 
-You should also be able to access the machine over the network on port 80
-through the magic of [iptables port forwarding](https://www.cogini.com/blog/port-forwarding-with-iptables/).
+Make a request to the machine over the network on port 80 through the magic of
+[iptables port forwarding](https://www.cogini.com/blog/port-forwarding-with-iptables/).
 
-You can get a console on the running app by logging in as the app's `foo` user
-and running:
+You can get a console on the running app by logging in as the `foo` user the
+app runs under and executing:
 
 ```shell
 /opt/myorg/deploy-template/scripts/remote_console.sh
@@ -385,7 +387,7 @@ ansible-playbook -u deploy -v -l web-servers playbooks/deploy-app.yml --tags dep
 
 Ansible has a [vault](http://docs.ansible.com/ansible/2.5/user_guide/vault.html) function
 which you can use to store keys. The lets you encrypt variable data and check
-it into source control. Only people with the key can read it.
+it into source control, and only people with the password can read it.
 
 There are trade-offs in managing secrets.
 
@@ -397,38 +399,38 @@ CI server, then that goes double. You don't want to give the CI service access
 to your production keys.
 
 For secure applications like health care, developers should not have access to
-the prod keys. You can restrict vault key access to your ops team, or use
+the prod keys. You can restrict vault password access to your ops team, or use
 different keys for different environments.
 
-You can also set up a build and deploy server in the cloud which has access to
-the keys and configure the the production instances from it. When we run
-in an auto scaling group, we build an AMI with [Packer](https://www.packer.io/)
-and Ansible, putting the keys on it the same way. Even better, however, is to
-not store keys on the server at all. We can pull them when the app starts up,
-reading from an S3 bucket or Amazon's KMS, with access controlled by IAM
-instance roles.
+You can also set up a build/deploy server in the cloud which has access to the
+keys and configure the production instances from it. When we run in an AWS auto
+scaling group, we build an AMI with [Packer](https://www.packer.io/) and
+Ansible, putting the keys on it the same way. Even better, however, is to not
+store keys on the server at all. Pull them when the app starts up, reading from
+an S3 bucket or Amazon's KMS, with access controlled by IAM instance roles.
 
 The one thing that really needs to be there at startup is the Erlang cookie,
-everything else we can pull at runtime. If we are not using the Erlang distribution
-protocol, then we don't need to share it, it just needs to be secure. 
+everything else we can pull at runtime. If we are not using the Erlang
+distribution protocol, then we don't need to share it, it just needs to be
+secure. 
 
 The following shows describes how you can use the vault.
 
-Generate a vault key and put it in the file `ansible/vault.key`:
+Generate a vault password and put it in the file `ansible/vault.key`:
 
 ```shell
 openssl rand -hex 16
 ```
 
-You can specify the key when you are running a playbook with the
-`--vault-password-file vault.key` option, or you can make the vault key always
+You can specify the password when you are running a playbook with the
+`--vault-password-file vault.key` option, or you can make the vault password always
 available by setting it in `ansible/ansible.cfg`:
 
     vault_password_file = vault.key
 
 The `ansible/inventory/group_vars/web-servers/secrets.yml` file specifies deploy secrets.
 
-Generate a cookie for deployment and put it in the secrets file:
+Generate a cookie for deployment and copy it into the `secrets.yml` file:
 
 ```shell
 openssl rand -hex 32 | ansible-vault encrypt_string --vault-id vault.key --stdin-name 'erlang_cookie'
