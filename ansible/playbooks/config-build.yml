@@ -6,7 +6,7 @@
   hosts: '*'
   become: true
   gather_facts: true
-  # no_log: true
+  no_log: true
   tasks:
     - name: Set db_pass
       set_fact:
@@ -21,10 +21,10 @@
         group: "{{ elixir_release_deploy_group }}"
         mode: "0640"
 
-    - name: Set Erlang cookie file
-      copy:
-        content: "{{ erlang_cookie }}"
-        dest: "/home/{{ elixir_release_deploy_user }}/build/{{ elixir_release_name }}/config/cookie.txt"
-        owner: "{{ elixir_release_deploy_user }}"
-        group: "{{ elixir_release_deploy_group }}"
-        mode: "0640"
+    # - name: Set Erlang cookie file
+    #   copy:
+    #     content: "{{ erlang_cookie }}"
+    #     dest: "/home/{{ elixir_release_deploy_user }}/build/{{ elixir_release_name }}/config/cookie.txt"
+    #     owner: "{{ elixir_release_deploy_user }}"
+    #     group: "{{ elixir_release_deploy_group }}"
+    #     mode: "0640"
