@@ -479,8 +479,7 @@ This playbook configures the production server, setting the
 ansible-playbook --vault-password-file vault.key -u $USER -v -l web-servers playbooks/config-web.yml -D
 ```
 
-This playbook configures `config/cookie.txt` and `config/prod.secret.exs` on
-the build server.
+This playbook configures `config/prod.secret.exs` on the build server.
 
 ```shell
 ansible-playbook --vault-password-file vault.key -u $USER -v -l build-servers playbooks/config-build.yml -D
