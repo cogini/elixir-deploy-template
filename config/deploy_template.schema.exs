@@ -227,6 +227,14 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       hidden: false,
       to: "deploy_template.Elixir.DeployTemplate.Repo.database"
     ],
+    "deploy_template.Elixir.DeployTemplate.Repo.hostname": [
+      commented: false,
+      datatype: :binary,
+      default: "localhost",
+      doc: "Provide documentation for deploy_template.Elixir.DeployTemplate.Repo.hostname here.",
+      hidden: false,
+      to: "deploy_template.Elixir.DeployTemplate.Repo.hostname"
+    ],
     "deploy_template.Elixir.DeployTemplate.Repo.pool_size": [
       commented: false,
       datatype: :integer,
