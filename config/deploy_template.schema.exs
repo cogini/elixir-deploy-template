@@ -52,6 +52,16 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
   extends: [],
   import: [],
   mappings: [
+    "logger.console.format": [
+      commented: false,
+      datatype: :binary,
+      default: """
+      $time $metadata[$level] $message
+      """,
+      doc: "Provide documentation for logger.console.format here.",
+      hidden: false,
+      to: "logger.console.format"
+    ],
     "logger.console.metadata": [
       commented: false,
       datatype: [
@@ -64,23 +74,37 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       hidden: false,
       to: "logger.console.metadata"
     ],
-    "logger.console.format": [
+    "logger.level": [
+      commented: false,
+      datatype: :atom,
+      default: :info,
+      doc: "Provide documentation for logger.level here.",
+      hidden: false,
+      to: "logger.level"
+    ],
+    "phoenix.serve_endpoints": [
+      commented: false,
+      datatype: :atom,
+      default: true,
+      doc: "Provide documentation for phoenix.serve_endpoints here.",
+      hidden: false,
+      to: "phoenix.serve_endpoints"
+    ],
+    "shutdown_flag.flag_file": [
       commented: false,
       datatype: :binary,
-      default: """
-      [$level] $message
-      """,
-      doc: "Provide documentation for logger.console.format here.",
+      default: "/var/tmp/deploy/deploy-template/shutdown.flag",
+      doc: "Provide documentation for shutdown_flag.flag_file here.",
       hidden: false,
-      to: "logger.console.format"
+      to: "shutdown_flag.flag_file"
     ],
-    "phoenix.stacktrace_depth": [
+    "shutdown_flag.check_delay": [
       commented: false,
       datatype: :integer,
-      default: 20,
-      doc: "Provide documentation for phoenix.stacktrace_depth here.",
+      default: 10000,
+      doc: "Provide documentation for shutdown_flag.check_delay here.",
       hidden: false,
-      to: "phoenix.stacktrace_depth"
+      to: "shutdown_flag.check_delay"
     ],
     "deploy_template.ecto_repos": [
       commented: false,
@@ -93,14 +117,6 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       doc: "Provide documentation for deploy_template.ecto_repos here.",
       hidden: false,
       to: "deploy_template.ecto_repos"
-    ],
-    "deploy_template.Elixir.DeployTemplateWeb.Endpoint.url.host": [
-      commented: false,
-      datatype: :binary,
-      default: "localhost",
-      doc: "Provide documentation for deploy_template.Elixir.DeployTemplateWeb.Endpoint.url.host here.",
-      hidden: false,
-      to: "deploy_template.Elixir.DeployTemplateWeb.Endpoint.url.host"
     ],
     "deploy_template.Elixir.DeployTemplateWeb.Endpoint.secret_key_base": [
       commented: false,
@@ -147,70 +163,37 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       hidden: false,
       to: "deploy_template.Elixir.DeployTemplateWeb.Endpoint.pubsub.adapter"
     ],
-    "deploy_template.Elixir.DeployTemplateWeb.Endpoint.http.port": [
+    "deploy_template.Elixir.DeployTemplateWeb.Endpoint.load_from_system_env": [
+      commented: false,
+      datatype: :atom,
+      default: true,
+      doc: "Provide documentation for deploy_template.Elixir.DeployTemplateWeb.Endpoint.load_from_system_env here.",
+      hidden: false,
+      to: "deploy_template.Elixir.DeployTemplateWeb.Endpoint.load_from_system_env"
+    ],
+    "deploy_template.Elixir.DeployTemplateWeb.Endpoint.url.host": [
+      commented: false,
+      datatype: :binary,
+      default: "example.com",
+      doc: "Provide documentation for deploy_template.Elixir.DeployTemplateWeb.Endpoint.url.host here.",
+      hidden: false,
+      to: "deploy_template.Elixir.DeployTemplateWeb.Endpoint.url.host"
+    ],
+    "deploy_template.Elixir.DeployTemplateWeb.Endpoint.url.port": [
       commented: false,
       datatype: :integer,
-      default: 4000,
-      doc: "Provide documentation for deploy_template.Elixir.DeployTemplateWeb.Endpoint.http.port here.",
+      default: 80,
+      doc: "Provide documentation for deploy_template.Elixir.DeployTemplateWeb.Endpoint.url.port here.",
       hidden: false,
-      to: "deploy_template.Elixir.DeployTemplateWeb.Endpoint.http.port"
+      to: "deploy_template.Elixir.DeployTemplateWeb.Endpoint.url.port"
     ],
-    "deploy_template.Elixir.DeployTemplateWeb.Endpoint.debug_errors": [
+    "deploy_template.Elixir.DeployTemplateWeb.Endpoint.cache_static_manifest": [
       commented: false,
-      datatype: :atom,
-      default: true,
-      doc: "Provide documentation for deploy_template.Elixir.DeployTemplateWeb.Endpoint.debug_errors here.",
+      datatype: :binary,
+      default: "priv/static/cache_manifest.json",
+      doc: "Provide documentation for deploy_template.Elixir.DeployTemplateWeb.Endpoint.cache_static_manifest here.",
       hidden: false,
-      to: "deploy_template.Elixir.DeployTemplateWeb.Endpoint.debug_errors"
-    ],
-    "deploy_template.Elixir.DeployTemplateWeb.Endpoint.code_reloader": [
-      commented: false,
-      datatype: :atom,
-      default: true,
-      doc: "Provide documentation for deploy_template.Elixir.DeployTemplateWeb.Endpoint.code_reloader here.",
-      hidden: false,
-      to: "deploy_template.Elixir.DeployTemplateWeb.Endpoint.code_reloader"
-    ],
-    "deploy_template.Elixir.DeployTemplateWeb.Endpoint.check_origin": [
-      commented: false,
-      datatype: :atom,
-      default: false,
-      doc: "Provide documentation for deploy_template.Elixir.DeployTemplateWeb.Endpoint.check_origin here.",
-      hidden: false,
-      to: "deploy_template.Elixir.DeployTemplateWeb.Endpoint.check_origin"
-    ],
-    "deploy_template.Elixir.DeployTemplateWeb.Endpoint.watchers.node": [
-      commented: false,
-      datatype: [
-        list: [
-          :binary,
-          atom: :binary
-        ]
-      ],
-      default: [
-        "node_modules/brunch/bin/brunch",
-        "watch",
-        "--stdin",
-        cd: "/Users/jake/work/elixir-deploy-template/assets"
-      ],
-      doc: "Provide documentation for deploy_template.Elixir.DeployTemplateWeb.Endpoint.watchers.node here.",
-      hidden: false,
-      to: "deploy_template.Elixir.DeployTemplateWeb.Endpoint.watchers.node"
-    ],
-    "deploy_template.Elixir.DeployTemplateWeb.Endpoint.live_reload.patterns": [
-      commented: false,
-      datatype: [
-        list: :binary
-      ],
-      default: [
-        ~r/priv\/static\/.*(js|css|png|jpeg|jpg|gif|svg)$/,
-        ~r/priv\/gettext\/.*(po)$/,
-        ~r/lib\/deploy_template_web\/views\/.*(ex)$/,
-        ~r/lib\/deploy_template_web\/templates\/.*(eex)$/
-      ],
-      doc: "Provide documentation for deploy_template.Elixir.DeployTemplateWeb.Endpoint.live_reload.patterns here.",
-      hidden: false,
-      to: "deploy_template.Elixir.DeployTemplateWeb.Endpoint.live_reload.patterns"
+      to: "deploy_template.Elixir.DeployTemplateWeb.Endpoint.cache_static_manifest"
     ],
     "deploy_template.Elixir.DeployTemplate.Repo.adapter": [
       commented: false,
@@ -239,23 +222,15 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
     "deploy_template.Elixir.DeployTemplate.Repo.database": [
       commented: false,
       datatype: :binary,
-      default: "deploy_template_dev",
+      default: "deploy_template_prod",
       doc: "Provide documentation for deploy_template.Elixir.DeployTemplate.Repo.database here.",
       hidden: false,
       to: "deploy_template.Elixir.DeployTemplate.Repo.database"
     ],
-    "deploy_template.Elixir.DeployTemplate.Repo.hostname": [
-      commented: false,
-      datatype: :binary,
-      default: "localhost",
-      doc: "Provide documentation for deploy_template.Elixir.DeployTemplate.Repo.hostname here.",
-      hidden: false,
-      to: "deploy_template.Elixir.DeployTemplate.Repo.hostname"
-    ],
     "deploy_template.Elixir.DeployTemplate.Repo.pool_size": [
       commented: false,
       datatype: :integer,
-      default: 10,
+      default: 15,
       doc: "Provide documentation for deploy_template.Elixir.DeployTemplate.Repo.pool_size here.",
       hidden: false,
       to: "deploy_template.Elixir.DeployTemplate.Repo.pool_size"

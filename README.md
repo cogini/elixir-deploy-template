@@ -576,13 +576,13 @@ Add [Conform](https://github.com/bitwalker/conform) to `deps` in `mix.exs`:
 Generate schema to the `config/deploy_template.schema.exs` file.
 
 ```elixir
-mix conform.new
+MIX_ENV=prod mix conform.new
 ```
 
-Generate a sample `deploy_template.dev.conf` file:
+Generate a sample `deploy_template.prod.conf` file:
 
 ```elixir
-mix conform.configure
+MIX_ENV=prod mix conform.configure
 ```
 
 Integrate with Distillery, by adding `plugin Conform.ReleasePlugin`
