@@ -31,6 +31,11 @@
         secret_key_base: "{{ lookup('password', '/tmp/secret_key_base.txt length=64') }}"
       when: secret_key_base is not defined
 
+    - name: Set db_pass
+      set_fact:
+        db_pass: "{{ lookup('password', '/tmp/db_pass.txt length=16') }}"
+      when: db_pass is not defined
+
     - name: Create Conform conf file
       template:
         src: ../templates/etc/app.conf.j2

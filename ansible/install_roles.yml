@@ -4,3 +4,4 @@
 
 - src: cogini.users
 - src: cogini.elixir-release
+- src: ANXS.postgresql

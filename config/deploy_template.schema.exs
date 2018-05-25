@@ -52,6 +52,48 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
   extends: [],
   import: [],
   mappings: [
+    "logger.console.metadata": [
+      commented: false,
+      datatype: [
+        list: :atom
+      ],
+      default: [
+        :request_id
+      ],
+      doc: "Provide documentation for logger.console.metadata here.",
+      hidden: false,
+      to: "logger.console.metadata"
+    ],
+    "logger.console.format": [
+      commented: false,
+      datatype: :binary,
+      default: """
+      [$level] $message
+      """,
+      doc: "Provide documentation for logger.console.format here.",
+      hidden: false,
+      to: "logger.console.format"
+    ],
+    "phoenix.stacktrace_depth": [
+      commented: false,
+      datatype: :integer,
+      default: 20,
+      doc: "Provide documentation for phoenix.stacktrace_depth here.",
+      hidden: false,
+      to: "phoenix.stacktrace_depth"
+    ],
+    "deploy_template.ecto_repos": [
+      commented: false,
+      datatype: [
+        list: :atom
+      ],
+      default: [
+        DeployTemplate.Repo
+      ],
+      doc: "Provide documentation for deploy_template.ecto_repos here.",
+      hidden: false,
+      to: "deploy_template.ecto_repos"
+    ],
     "deploy_template.Elixir.DeployTemplateWeb.Endpoint.url.host": [
       commented: false,
       datatype: :binary,
@@ -137,6 +179,24 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       hidden: false,
       to: "deploy_template.Elixir.DeployTemplateWeb.Endpoint.check_origin"
     ],
+    "deploy_template.Elixir.DeployTemplateWeb.Endpoint.watchers.node": [
+      commented: false,
+      datatype: [
+        list: [
+          :binary,
+          atom: :binary
+        ]
+      ],
+      default: [
+        "node_modules/brunch/bin/brunch",
+        "watch",
+        "--stdin",
+        cd: "/Users/jake/work/elixir-deploy-template/assets"
+      ],
+      doc: "Provide documentation for deploy_template.Elixir.DeployTemplateWeb.Endpoint.watchers.node here.",
+      hidden: false,
+      to: "deploy_template.Elixir.DeployTemplateWeb.Endpoint.watchers.node"
+    ],
     "deploy_template.Elixir.DeployTemplateWeb.Endpoint.live_reload.patterns": [
       commented: false,
       datatype: [
@@ -152,35 +212,53 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       hidden: false,
       to: "deploy_template.Elixir.DeployTemplateWeb.Endpoint.live_reload.patterns"
     ],
-    "logger.console.metadata": [
+    "deploy_template.Elixir.DeployTemplate.Repo.adapter": [
       commented: false,
-      datatype: [
-        list: :atom
-      ],
-      default: [
-        :request_id
-      ],
-      doc: "Provide documentation for logger.console.metadata here.",
+      datatype: :atom,
+      default: Ecto.Adapters.Postgres,
+      doc: "Provide documentation for deploy_template.Elixir.DeployTemplate.Repo.adapter here.",
       hidden: false,
-      to: "logger.console.metadata"
+      to: "deploy_template.Elixir.DeployTemplate.Repo.adapter"
     ],
-    "logger.console.format": [
+    "deploy_template.Elixir.DeployTemplate.Repo.username": [
       commented: false,
       datatype: :binary,
-      default: """
-      [$level] $message
-      """,
-      doc: "Provide documentation for logger.console.format here.",
+      default: "postgres",
+      doc: "Provide documentation for deploy_template.Elixir.DeployTemplate.Repo.username here.",
       hidden: false,
-      to: "logger.console.format"
+      to: "deploy_template.Elixir.DeployTemplate.Repo.username"
     ],
-    "phoenix.stacktrace_depth": [
+    "deploy_template.Elixir.DeployTemplate.Repo.password": [
+      commented: false,
+      datatype: :binary,
+      default: "postgres",
+      doc: "Provide documentation for deploy_template.Elixir.DeployTemplate.Repo.password here.",
+      hidden: false,
+      to: "deploy_template.Elixir.DeployTemplate.Repo.password"
+    ],
+    "deploy_template.Elixir.DeployTemplate.Repo.database": [
+      commented: false,
+      datatype: :binary,
+      default: "deploy_template_dev",
+      doc: "Provide documentation for deploy_template.Elixir.DeployTemplate.Repo.database here.",
+      hidden: false,
+      to: "deploy_template.Elixir.DeployTemplate.Repo.database"
+    ],
+    "deploy_template.Elixir.DeployTemplate.Repo.hostname": [
+      commented: false,
+      datatype: :binary,
+      default: "localhost",
+      doc: "Provide documentation for deploy_template.Elixir.DeployTemplate.Repo.hostname here.",
+      hidden: false,
+      to: "deploy_template.Elixir.DeployTemplate.Repo.hostname"
+    ],
+    "deploy_template.Elixir.DeployTemplate.Repo.pool_size": [
       commented: false,
       datatype: :integer,
-      default: 20,
-      doc: "Provide documentation for phoenix.stacktrace_depth here.",
+      default: 10,
+      doc: "Provide documentation for deploy_template.Elixir.DeployTemplate.Repo.pool_size here.",
       hidden: false,
-      to: "phoenix.stacktrace_depth"
+      to: "deploy_template.Elixir.DeployTemplate.Repo.pool_size"
     ]
   ],
   transforms: [],

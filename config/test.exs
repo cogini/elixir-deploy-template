@@ -8,3 +8,12 @@ config :deploy_template, DeployTemplateWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+# Configure your database
+config :deploy_template, DeployTemplate.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  username: "postgres",
+  password: "postgres",
+  database: "deploy_template_test",
+  hostname: "localhost",
+  pool: Ecto.Adapters.SQL.Sandbox

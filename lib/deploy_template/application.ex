@@ -8,6 +8,8 @@ defmodule DeployTemplate.Application do
 
     # Define workers and child supervisors to be supervised
     children = [
+      # Start the Ecto repository
+      supervisor(DeployTemplate.Repo, []),
       # Start the endpoint when the application starts
       supervisor(DeployTemplateWeb.Endpoint, []),
       # Start your own worker by calling: DeployTemplate.Worker.start_link(arg1, arg2, arg3)

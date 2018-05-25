@@ -223,11 +223,14 @@ ansible-playbook -u $USER -v -l web-servers playbooks/deploy-app.yml --skip-tags
 
 Configure runtime secrets, setting the `$HOME/.erlang.cookie` file and
 generate a Conform file at `/etc/deploy-template/deploy_template.conf` with
-the `secret_key_base`:
+variables such as `secret_key_base` and db config:
 
 ```shell
 ansible-playbook -u $USER -v -l web-servers playbooks/config-web.yml -D
 ```
+
+For ease of getting started, this generates secrets on your local machine and
+stores them in `/tmp`.  See below for discussion about managing secrets.
 
 At this point, the web server is set up, but we need to build and deploy
 the app code to it.
@@ -241,6 +244,14 @@ Set up the server, e.g. install ASDF:
 ```shell
 ansible-playbook -u root -v -l build-servers playbooks/setup-build.yml -D
 ```
+
+Configure `config/prod.secret.exs` on the build server.
+
+```shell
+ansible-playbook -u $USER -v -l build-servers playbooks/config-build.yml -D
+```
+
+See below for discussion about managing secrets.
 
 ## Build the app
 
@@ -260,8 +271,6 @@ If you are using a CI server to build and deploy code, then it runs in the
 background.  Create a deploy key in GitHub so it can access to your source and
 add the ssh key on the build server to the `deploy` user account on the web
 servers so the CI server can push releases.
-
-See below for discussion about managing secrets.
 
 Build the production release:
 
@@ -412,7 +421,7 @@ an S3 bucket or Amazon's KMS, with access controlled by IAM instance roles.
 The one thing that really needs to be there at startup is the Erlang cookie,
 everything else we can pull at runtime. If we are not using the Erlang
 distribution protocol, then we don't need to share it, it just needs to be
-secure. 
+secure.
 
 The following shows describes how you can use the vault.
 
@@ -450,22 +459,28 @@ erlang_cookie: !vault |
           36323866346139666462
 ```
 
-Generate a `secret_key_base` for the server the same way:
+Generate `secret_key_base` for the server the same way:
 
 ```shell
 openssl rand -base64 48 | ansible-vault encrypt_string --vault-id vault.key --stdin-name 'secret_key_base'
 ```
 
+Generate `db_pass` for the db user:
+
+```shell
+openssl rand -hex 16 | ansible-vault encrypt_string --vault-id vault.key --stdin-name 'db_pass'
+```
+
 This playbook configures the production server, setting the
 `$HOME/.erlang.cookie` file on the web server and generates a Conform file at
-`/etc/deploy-template/deploy_template.conf` with the `secret_key_base`:
+`/etc/deploy-template/deploy_template.conf` with the other vars:
 
 ```shell
 ansible-playbook --vault-password-file vault.key -u $USER -v -l web-servers playbooks/config-web.yml -D
 ```
 
-This playbook sets the cookie in `build/deploy-template/config/cookie.txt` on
-the build server:
+This playbook configures `config/cookie.txt` and `config/prod.secret.exs` on
+the build server.
 
 ```shell
 ansible-playbook --vault-password-file vault.key -u $USER -v -l build-servers playbooks/config-build.yml -D
@@ -473,22 +488,21 @@ ansible-playbook --vault-password-file vault.key -u $USER -v -l build-servers pl
 
 TODO: link to config blog post when it's live
 
-## Database migrations
+## Database
 
-For a real app, you will generally need a database.
+For a real app, you will generally need a database. In the simple scenario, a
+single server is used to build and deploy the app, and also runs the db.
 
-In the simple scenario, a single server is used to build and deploy the app,
-and also runs the db. In that case, we need to log into the build environment
-and create the db after we have set up the build environment.
+Log into the build environment.
 
-Add the db passwords to `config/prod.secret.exs` and create the db:
+After building the release, but before deploying the code, update the db to
+match the code:
 
 ```shell
-MIX_ENV=prod mix ecto.create
+scripts/db-migrate.sh
 ```
 
-Then, after building the release, but before deploying the code, we need to
-update the db to match the code:
+That script runs:
 
 ```shell
 MIX_ENV=prod mix ecto.migrate
@@ -496,9 +510,9 @@ MIX_ENV=prod mix ecto.migrate
 
 Surprisingly, the same process also works when we are deploying in an AWS cloud
 environment. Create a build instance in the VPC private subnet which has
-permissions to talk to the RDS database. Run the Ecto commands to create and
-migrate the db, build the release, then do a Blue/Green deployment to the ASG
-using AWS CodeDeploy.
+permissions to talk to the RDS database. Run the Ecto commands to migrate the
+db, build the release, then do a Blue/Green deployment to the ASG using AWS
+CodeDeploy.
 
 # Changes
 
@@ -508,7 +522,7 @@ it to your own project.
 It all began with a new Phoenix project:
 
 ```shell
-mix phx.new --no-ecto deploy_template
+mix phx.new deploy_template
 ```
 
 ## Set up distillery
@@ -534,12 +548,6 @@ Uncomment this so Phoenix will run in a release:
 
 ```elixir
 config :phoenix, :serve_endpoints, true
-```
-
-Comment this out, as we are not storing production secrets in the release:
-
-```elixir
-# import_config "prod.secret.exs"
 ```
 
 ## Add Ansible

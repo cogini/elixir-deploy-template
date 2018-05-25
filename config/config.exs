@@ -5,6 +5,10 @@
 # is restricted to this project.
 use Mix.Config
 
+# General application configuration
+config :deploy_template,
+  ecto_repos: [DeployTemplate.Repo]
+
 # Configures the endpoint
 config :deploy_template, DeployTemplateWeb.Endpoint,
   url: [host: "localhost"],

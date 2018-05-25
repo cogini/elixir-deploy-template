@@ -35,6 +35,17 @@
     - tools-other
     - iptables
 
+- name: Install postgresql
+  hosts: '*'
+  become: true
+  pre_tasks:
+    - name: Set db_pass
+      set_fact:
+        db_pass: "{{ lookup('password', '/tmp/db_pass.txt length=16') }}"
+      when: db_pass is not defined
+  roles:
+    - ANXS.postgresql
+
 - name: Install asdf
   hosts: '*'
   become: true

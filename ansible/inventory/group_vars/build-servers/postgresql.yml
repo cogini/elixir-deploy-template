@@ -1,0 +1,11 @@
+# Vars for web-servers group
+postgresql_version: 10
+
+postgresql_users:
+  - name: "{{ elixir_release_name_code }}"
+    pass: "{{ db_pass }}"
+    encrypted: yes
+
+postgresql_databases:
+  - name: "{{ elixir_release_name_code }}_prod"
+    owner: "{{ elixir_release_name_code }}"
