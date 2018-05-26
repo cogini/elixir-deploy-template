@@ -140,7 +140,7 @@ Go to [Digital Ocean](https://m.do.co/c/150575a88316) (affiliate link) and
 create a Droplet (virtual server).
 
 * **Choose an image**: If you are [not sure which distro to
-  use](/blog/choosing-a-linux-distribution/), choose CentOS 7. 
+  use](/blog/choosing-a-linux-distribution/), choose CentOS 7.
 * **Choose a size**: The smallest, $5/month Droplet is fine
 * **Choose a datacenter region**: Select a data center near you
 * **Add your SSH keys**: Select the "New SSH Key" button, and paste the
@@ -187,26 +187,26 @@ ssh root@web-server
 ```
 
 If it doesn't work, run ssh with `-v` flags to see what the problem is.
-You can add more verbosity, e.g. `-vvvv` if you need more detail. File
-permissions are the most common problem.
+You can add more verbosity, e.g. `-vvvv` if you need more detail.
 
 ```shell
 ssh -vv root@web-server
 ```
 
-Another common problem is forgetting to add your ssh key when creating the
-Droplet. Destroy the Droplet and create it again.
+File permissions are the most common cause of problems with ssh. Another common
+problem is forgetting to add your ssh key when creating the Droplet. Destroy
+the Droplet and create it again.
 
 ### Set variables
 
-The configuration vars defined in `inventory/group_vars/all` apply to all hosts in
-your project. They are overridden by variables in more specific groups like
+The configuration variables defined in `inventory/group_vars/all` apply to all hosts in
+your project. They are overridden by vars in more specific groups like
 `inventory/group_vars/web-servers` or for individual hosts, e.g.
 `inventory/host_vars/web-server`.
 
-These playbooks use ssh keys to control access to server accounts, not passwords.
-Ansible uses ssh to deploy the releases, and the `users` Ansible role manages
-the keys to allow login.
+Ansible uses ssh to connect to the server. These playbooks use ssh keys to
+control logins to server accounts, not passwords. The `users` Ansible role
+manages accounts.
 
 The `inventory/group_vars/all/users.yml` file defines a global list of users and
 system admins. It has a live user (me!), **change it to match your details**:
@@ -246,8 +246,7 @@ elixir_release_http_listen_port: 4001
 
 The `inventory/group_vars/build-servers/vars.yml` file specifies the build settings.
 
-Set the name of your project git repo, which will be checked out on the build
-server:
+It specifies the project's git repo, which will be checked out on the build server:
 
 ```yaml
 # App git repo
@@ -256,8 +255,7 @@ app_repo: https://github.com/cogini/elixir-deploy-template
 
 ## Set up web server
 
-Run these and other Ansible commands from the `ansible` dir in the
-project.
+Run the following Ansible commands from the `ansible` dir in the project.
 
 Do initial server setup:
 
@@ -270,8 +268,11 @@ work on groups of servers simultaneously. Configuration tasks are written to be
 idempotent, so we can run the playbook against all our servers and it will make
 whatever changes are needed to get them up to date.
 
-If you add `--check` to the Ansible command, it will show you the changes it is
-planning to do, but doesn't actually run them.
+The `-v` flag controls verbosity, you can add more v's to get more debug info.
+The `-D` flag shows diffs of the changes Ansible makes on the server. If you
+add `--check` to the Ansible command, it will show you the changes it is
+planning to do, but doesn't actually run them (these scripts are safe to run,
+but it may error out during the play if required packages are not installed).
 
 Set up the app (create dirs, etc.):
 
@@ -296,19 +297,22 @@ the app code to it.
 
 This can be the same as the web server or a separate server.
 
-Set up the server, e.g. install ASDF:
+Set up the build server:
 
 ```shell
 ansible-playbook -u root -v -l build-servers playbooks/setup-build.yml -D
 ```
 
-Configure `config/prod.secret.exs` on the build server.
+This sets up the build environment, e.g. install ASDF. It also installs
+PostgreSQL, assuming we are running the web app on the same server.
+
+Configure `config/prod.secret.exs` on the build server:
 
 ```shell
 ansible-playbook -u $USER -v -l build-servers playbooks/config-build.yml -D
 ```
 
-See below for discussion about managing secrets.
+Again, see below for discussion about managing secrets.
 
 ## Build the app
 
@@ -316,6 +320,7 @@ Log into the `deploy` user on the build machine:
 
 ```shell
 ssh -A deploy@build-server
+cd ~/build/deploy-template
 ```
 
 The `-A` flag on the ssh command gives the session on the server access to your
@@ -354,9 +359,9 @@ mix deps.get --only prod
 MIX_ENV=prod mix do compile, phx.digest, release
 ```
 
-`asdf install` builds Erlang from source, so the first time it runs
-it can take a long time. If it fails, delete `/home/deploy/.asdf/installs/erlang/20.3`
-and try again. You may want to run it under `tmux`.
+`asdf install` builds Erlang from source, so the first time it runs it can take
+a long time. If it fails, delete `/home/deploy/.asdf/installs/erlang/20.3` and
+try again. You may want to run it under `tmux`.
 
 ## Deploy the release locally
 
