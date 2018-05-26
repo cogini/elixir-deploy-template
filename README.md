@@ -1,31 +1,30 @@
 # deploy-template
 
-This is a working example app which shows how to deploy a Phoenix app based on
-my blog post "[Best practices for deploying Elixir
+This is a working example app which shows how to deploy a Phoenix app using
+the principles from my blog post "[Best practices for deploying Elixir
 apps](https://www.cogini.com/blog/best-practices-for-deploying-elixir-apps/)".
-The blog post "[Deploying your Phoenix app to Digital Ocean for beginners]
-(https://www.cogini.com/blog/deploying-your-Phoenix-app-to-Digital-Ocean-for-beginners/)
-" has similar content, but is simplified for beginners. If you have any
+The blog post "[Deploying your Phoenix app to Digital Ocean for
+beginners](https://www.cogini.com/blog/deploying-your-Phoenix-app-to-Digital-Ocean-for-beginners/)"
+has similar content, but is simplified for beginners. If you have any
 questions, open an issue here or ping me on the `#elixir-lang` IRC channel on
 Freenode, I am `reachfh`. Patches welcome.
 
-It is based on a default Phoenix project with PostgreSQL database. First get
+It starts with a default Phoenix project with PostgreSQL database. First get
 the template running, then add the necessary [changes](#changes) to your own
 project.
 
-It's regularly tested deploying to [Digital Ocean](https://m.do.co/c/150575a88316)(affiliate link) with
-CentOS 7, Ubuntu 16.04, Ubuntu 18.04 and Debian 9.4. If you are [not sure which
-distro to use](/blog/choosing-a-linux-distribution/), choose CentOS 7. Digital
-Ocean's smallest $5/month Droplet [runs Phoenix
-fine](https://www.cogini.com/blog/benchmarking-phoenix-on-digital-ocean/).
-The approach here works great for dedicated servers and cloud instances as well.
+It's regularly tested deploying to [Digital Ocean](https://m.do.co/c/150575a88316)
+(affiliate link) with CentOS 7, Ubuntu 16.04, Ubuntu 18.04 and Debian 9.4.
+If you are [not sure which distro to use](/blog/choosing-a-linux-distribution/),
+choose CentOS 7. Digital Ocean's smallest $5/month Droplet [runs Phoenix
+fine](https://www.cogini.com/blog/benchmarking-phoenix-on-digital-ocean/). The
+approach here works great for dedicated servers and cloud instances as well.
 
-It is based on [Ansible](https://www.ansible.com/resources/get-started), which
-is an easy-to-use standard tool for managing servers. Unlike edeliver, it is
-based on a reliable and well documented set of primitives to handle logging
-into servers, uploading files and executing commands. It can also be used to
-[support more complex deployment
-scenarios](https://www.cogini.com/blog/setting-ansible-variables-based-on-the-environment/).
+It uses [Ansible](https://www.ansible.com/resources/get-started), which is an
+easy-to-use standard tool for managing servers. Unlike edeliver, it has
+reliable and well documented primitives to handle logging into servers,
+uploading files and executing commands. It can also be used to [support more
+complex deployment scenarios](https://www.cogini.com/blog/setting-ansible-variables-based-on-the-environment/).
 
 # Overall approach
 
