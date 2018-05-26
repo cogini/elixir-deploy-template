@@ -197,7 +197,7 @@ File permissions are the most common cause of problems with ssh. Another common
 problem is forgetting to add your ssh key when creating the Droplet. Destroy
 the Droplet and create it again.
 
-### Set variables
+### Set Ansible variables
 
 The configuration variables defined in `inventory/group_vars/all` apply to all hosts in
 your project. They are overridden by vars in more specific groups like
@@ -297,7 +297,7 @@ the app code to it.
 
 This can be the same as the web server or a separate server.
 
-Set up the build server:
+Set up the server:
 
 ```shell
 ansible-playbook -u root -v -l build-servers playbooks/setup-build.yml -D
