@@ -63,16 +63,16 @@
   roles:
     - tools-other
     - asdf
-  tasks:
+  pre_tasks:
     - name: Set vars
       set_fact:
-        asdf_nodejs_keyring: "{{ asdf_user_home }}/.asdf/keyrings/nodejs"
+        asdf_nodejs_keyring: "/home/{{ elixir_release_deploy_user }}/.asdf/keyrings/nodejs"
 
     - name: create keyring for Node.js keys
       file: path={{ asdf_nodejs_keyring }} state=directory owner={{ asdf_user }} group={{ asdf_user }} mode=0700
 
     - name: import Node.js keys to keyring
-      command: "bash -lc '{{ asdf_user_home }}/.asdf/plugins/nodejs/bin/import-release-team-keyring'"
+      command: "bash -lc '/home/{{ elixir_release_deploy_user }}/.asdf/plugins/nodejs/bin/import-release-team-keyring'"
       args:
         creates: "{{ asdf_nodejs_keyring }}/{{ gpg_pubring_file }}"
       become_user: "{{ asdf_user }}"

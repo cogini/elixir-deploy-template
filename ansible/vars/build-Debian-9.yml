@@ -1,3 +1,5 @@
 #
+gpg_pubring_file: pubring.kbx
+
 tools_other_packages:
   - dirmngr

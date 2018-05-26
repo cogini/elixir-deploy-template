@@ -13,8 +13,6 @@ asdf_optional_dependencies:
   - unzip
   - dirmngr
 
-gpg_pubring_file: pubring.kbx
-
 ansible_build_deps:
   - python3-pip
   # - python-pip

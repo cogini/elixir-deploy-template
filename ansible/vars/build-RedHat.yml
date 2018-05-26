@@ -13,8 +13,6 @@ asdf_optional_dependencies:
   - gpg
   - perl-Digest-SHA
 
-gpg_pubring_file: pubring.gpg
-
 ansible_build_deps:
   # Build deps for ansible
   - python-devel
