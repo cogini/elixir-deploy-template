@@ -4,7 +4,7 @@ This is a working example app which shows how to deploy a Phoenix app using
 the principles from my blog post "[Best practices for deploying Elixir
 apps](https://www.cogini.com/blog/best-practices-for-deploying-elixir-apps/)".
 The blog post "[Deploying your Phoenix app to Digital Ocean for
-beginners](https://www.cogini.com/blog/deploying-your-Phoenix-app-to-Digital-Ocean-for-beginners/)"
+beginners](https://www.cogini.com/blog/deploying-your-phoenix-app-to-digital-ocean-for-beginners/)"
 has similar content, but is simplified for beginners. If you have any
 questions, open an issue here or ping me on the `#elixir-lang` IRC channel on
 Freenode, I am `reachfh`. Patches welcome.
