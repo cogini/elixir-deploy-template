@@ -1,5 +1,3 @@
-# deploy-template
-
 This is a working example app which shows how to deploy a Phoenix app using
 the principles from my blog post "[Best practices for deploying Elixir
 apps](https://www.cogini.com/blog/best-practices-for-deploying-elixir-apps/)".
@@ -14,9 +12,8 @@ the template running, then add the necessary [changes](#changes) to your own
 project.
 
 It's regularly tested deploying to [Digital Ocean](https://m.do.co/c/150575a88316)
-(affiliate link) with CentOS 7, Ubuntu 16.04, Ubuntu 18.04 and Debian 9.4.
-If you are [not sure which distro to use](/blog/choosing-a-linux-distribution/),
-choose CentOS 7. Digital Ocean's smallest $5/month Droplet [runs Phoenix
+with CentOS 7, Ubuntu 16.04, Ubuntu 18.04 and Debian 9.4. Digital Ocean's
+smallest $5/month Droplet [runs Phoenix
 fine](https://www.cogini.com/blog/benchmarking-phoenix-on-digital-ocean/). The
 approach here works great for dedicated servers and cloud instances as well.
 
@@ -26,7 +23,7 @@ reliable and well documented primitives to handle logging into servers,
 uploading files and executing commands. It can also be used to [support more
 complex deployment scenarios](https://www.cogini.com/blog/setting-ansible-variables-based-on-the-environment/).
 
-# Overall approach
+### Overall approach
 
 1. Set up the web servers, running Linux.
 2. Set up a build server matching the architecture of the web server.
@@ -87,12 +84,7 @@ mix local.rebar --force
 mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez --force
 ```
 
-If ASDF is giving you trouble, don't stress about it. Install Erlang and Elixir according to
-the [instructions on the Elixir website](https://elixir-lang.org/install.html).
-
-## Confirm that it works
-
-Build the app the normal way:
+Confirm that it works by building the app the normal way:
 
 ```shell
 mix deps.get
@@ -100,7 +92,7 @@ mix deps.compile
 mix compile
 ```
 
-At this point you should be able to run the app locally with:
+You should be able to run the app locally with:
 
 ```shell
 iex -S mix phx.server
@@ -125,30 +117,30 @@ sudo easy_install pip
 See [the Ansible docs](http://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
 for other options.
 
-## Generate an ssh key
+## Set up ssh key
 
 We use ssh keys to control access to servers instead of passwords. This is more
 secure and easier to automate.
 
-To generate an ssh key:
+Generate an ssh key if you don't have one already:
 
 ```shell
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 ```
 
-Set a pass phrase to protect access to your key. macOS and modern Linux
-desktops will remember your pass phrase so you don't have to enter it every
-time (see `ssh-add`).  Add the `~/.ssh/id_rsa.pub` public key file to your
-GitHub account.
+Set a pass phrase to protect access to your key (optional but recommended).
+macOS and modern Linux desktops will remember your pass phrase in the keyring
+when you log in so you don't have to enter it every time.
+
+Add the `~/.ssh/id_rsa.pub` public key file to your GitHub account.
 
 # Set up a server
 
-## Create a Droplet
+Go to [Digital Ocean](https://m.do.co/c/150575a88316) (affiliate link) and
+create a Droplet (virtual server).
 
-Go to [Digital Ocean](https://m.do.co/c/150575a88316) and create a Droplet
-(virtual server).
-
-* **Choose an image**: If you are unsure, select CentOS 7.5 for the distribution
+* **Choose an image**: If you are [not sure which distro to
+  use](/blog/choosing-a-linux-distribution/), choose CentOS 7. 
 * **Choose a size**: The smallest, $5/month Droplet is fine
 * **Choose a datacenter region**: Select a data center near you
 * **Add your SSH keys**: Select the "New SSH Key" button, and paste the
@@ -158,16 +150,9 @@ Go to [Digital Ocean](https://m.do.co/c/150575a88316) and create a Droplet
 
 The defaults for everything else are fine. Click the "Create" button.
 
-## Configure Ansible
-
-### Define servers
-
 Add the host to the `~/.ssh/config` file on your dev machine:
 
     Host web-server
-        HostName 123.45.67.89
-
-    Host build-server
         HostName 123.45.67.89
 
 The file permissions on `~/.ssh/config` need to be secure or ssh will be unhappy:
@@ -176,21 +161,24 @@ The file permissions on `~/.ssh/config` need to be secure or ssh will be unhappy
 chmod 600 ~/.ssh/config
 ```
 
+## Configure Ansible
+
 Add the hosts to the groups in the Ansible inventory `ansible/inventory/hosts`
 file in the project:
 
     [web-servers]
     web-server
 
-The host name is not important, you can use an existing server. The `Host` name
-in your `.ssh/config` file just needs to match the name in `inventory/hosts`
-config and in the `ansible-playbook` commands below.
+    [build-servers]
+    web-server
+
+The host name here should match the `Host` name in your `.ssh/config` file.
 
 If you are using Ubuntu or Debian, add the host to the `[py3-hosts]` group, and
 it will use Python 3 on the server.
 
-(The template has multiple hosts in the groups for testing different OS
-versions, comment them out.)
+(The repo has multiple hosts in the groups for testing different OS versions,
+comment them out.)
 
 Test it by connecting to the server:
 
@@ -212,15 +200,15 @@ Droplet. Destroy the Droplet and create it again.
 ### Set variables
 
 The configuration vars defined in `inventory/group_vars/all` apply to all hosts in
-your project. They are overridden by variables in more specific groups, e.g.
+your project. They are overridden by variables in more specific groups like
 `inventory/group_vars/web-servers` or for individual hosts, e.g.
 `inventory/host_vars/web-server`.
 
-These scripts use ssh keys to control access to server accounts, not passwords.
+These playbooks use ssh keys to control access to server accounts, not passwords.
 Ansible uses ssh to deploy the releases, and the `users` Ansible role manages
 the keys to allow login.
 
-The `inventory/group_vars/all/users.yml` defines a global list of users and
+The `inventory/group_vars/all/users.yml` file defines a global list of users and
 system admins. It has a live user (me!), **change it to match your details**:
 
 ```yaml
