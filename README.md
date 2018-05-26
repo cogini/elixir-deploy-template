@@ -1,30 +1,40 @@
 # deploy-template
 
 This is a working example app which shows how to deploy a Phoenix app based on
-this [best practices for deploying elixir
-apps](https://www.cogini.com/blog/best-practices-for-deploying-elixir-apps/)
-blog post.
+my blog post "[Best practices for deploying Elixir
+apps](https://www.cogini.com/blog/best-practices-for-deploying-elixir-apps/)".
+The blog post "[Deploying your Phoenix app to Digital Ocean for beginners]
+(https://www.cogini.com/blog/deploying-your-Phoenix-app-to-Digital-Ocean-for-beginners/)
+" has similar content, but is simplified for beginners.
 
-It is based on a default Phoenix project without Ecto. The [changes](#changes)
-are all additions, so you can easily add them to your own project.
+If you have any questions, open an issue here or ping me on the `#elixir-lang`
+IRC channel on Freenode, I am `reachfh`. Patches welcome.
 
-It's tested deploying to [Digital Ocean](https://m.do.co/c/150575a88316) with
-CentOS 7, Ubuntu 16.04, Ubuntu 18.04 and Debian 9.4.
+It is based on a default Phoenix project. First get the template running,
+then add the necessary [changes](#changes) to your own project.
+
+It's regularly tested deploying to [Digital Ocean](https://m.do.co/c/150575a88316)(affiliate link) with
+CentOS 7, Ubuntu 16.04, Ubuntu 18.04 and Debian 9.4. If you are [not sure which
+distro to use](/blog/choosing-a-linux-distribution/), choose CentOS 7.
+
+Digital Ocean's smallest $5/month Droplet [runs Phoenix
+fine](https://www.cogini.com/blog/benchmarking-phoenix-on-digital-ocean/).
+The approach here works great for dedicated servers and cloud instances as well.
 
 It is based on [Ansible](https://www.ansible.com/resources/get-started), which
-is an easy-to-use standard platform for managing servers.
-Unlike edeliver, it is based on a reliable and well documented set of primitives
-to handle logging into servers, uploading files and executing commands.
-It can also be used to [support more complex deployment
+is an easy-to-use standard tool for managing servers. Unlike edeliver, it is
+based on a reliable and well documented set of primitives to handle logging
+into servers, uploading files and executing commands. It can also be used to
+[support more complex deployment
 scenarios](https://www.cogini.com/blog/setting-ansible-variables-based-on-the-environment/).
 
 # Overall approach
 
-1. Set up the web server, running Linux.
+1. Set up the web servers, running Linux.
 2. Set up a build server matching the architecture of the web server.
    This can be the same as the web server.
 3. Check out code on the build server from git and build a release.
-4. Deploy the release to the web server.
+4. Deploy the release to the web server, locally or remotely via Ansible.
 
 The actual work of checking out and deploying is handled by simple shell
 scripts which you run on the build server or from your dev machine via
@@ -40,13 +50,18 @@ ssh -A deploy@build-server build/deploy-template/scripts/deploy-local.sh
 
 # Set up dev machine
 
-Check out the code from git to your local dev machine:
+Check out the project from git on your local dev machine, same as you normally
+would:
 
 ```shell
 git clone https://github.com/cogini/elixir-deploy-template
 ```
 
 ## Set up ASDF
+
+ASDF lets you manage multiple versions of Erlang, Elixir and Node.js. It is
+safe to install on your machine, it won't conflict with anything else, that's
+it's whole reason for existing.
 
 Install ASDF as described in [the ASDF docs](https://github.com/asdf-vm/asdf).
 
@@ -74,9 +89,12 @@ mix local.rebar --force
 mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez --force
 ```
 
+If ASDF is giving you trouble, don't stress about it. Install Erlang and Elixir according to
+the [instructions on the Elixir website](https://elixir-lang.org/install.html).
+
 ## Confirm that it works
 
-Build the app the same as you normally would:
+Build the app the normal way:
 
 ```shell
 mix deps.get
@@ -93,28 +111,72 @@ open http://localhost:4000/
 
 ## Install Ansible
 
-Install Ansible on your dev machine. May be as simple as:
+Install Ansible on your dev machine. On macOS, use pip, the Python package
+manager:
 
 ```shell
-pip install ansible
+sudo pip install ansible
+```
+
+If pip isn’t already installed, run:
+
+```shell
+sudo easy_install pip
 ```
 
 See [the Ansible docs](http://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
 for other options.
 
-# Set up server
+## Generate an ssh key
 
-An easy option is [Digital Ocean](https://m.do.co/c/150575a88316).
-Their smallest $5/month Droplet will run Phoenix fine.
+We use ssh keys to control access to servers instead of passwords. This is more
+secure and easier to automate.
+
+To generate an ssh key:
+
+```shell
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+```
+
+Set a pass phrase to protect access to your key. macOS and modern Linux
+desktops will remember your pass phrase so you don't have to enter it every
+time (see `ssh-add`).  Add the `~/.ssh/id_rsa.pub` public key file to your
+GitHub account.
+
+# Set up a server
+
+## Create a Droplet
+
+Go to [Digital Ocean](https://m.do.co/c/150575a88316) and create a Droplet
+(virtual server).
+
+* **Choose an image**: If you are unsure, select CentOS 7.5 for the distribution
+* **Choose a size**: The smallest, $5/month Droplet is fine
+* **Choose a datacenter region**: Select a data center near you
+* **Add your SSH keys**: Select the "New SSH Key" button, and paste the
+  contents of your `~/.ssh/id_rsa.pub` file.
+* **Choose a hostname**: The default name is fine, but a bit awkward to type. Use
+  "web-server" or whatever you like.
+
+The defaults for everything else are fine. Click the "Create" button.
 
 ## Configure Ansible
 
 ### Define servers
 
-Add the hosts to the `~/.ssh/config` file on your dev machine:
+Add the host to the `~/.ssh/config` file on your dev machine:
 
     Host web-server
         HostName 123.45.67.89
+
+    Host build-server
+        HostName 123.45.67.89
+
+The file permissions on `~/.ssh/config` need to be secure or ssh will be unhappy:
+
+```shell
+chmod 600 ~/.ssh/config
+```
 
 Add the hosts to the groups in the Ansible inventory `ansible/inventory/hosts`
 file in the project:
@@ -122,32 +184,46 @@ file in the project:
     [web-servers]
     web-server
 
-    [build-servers]
-    web-server
+The host name is not important, you can use an existing server. The `Host` name
+in your `.ssh/config` file just needs to match the name in `inventory/hosts`
+config and in the `ansible-playbook` commands below.
 
-The host name is not important, you can use an existing server. Use the
-host name from your `.ssh/config` file in the `inventory/hosts` config and in
-the `ansible-playbook` commands below.
-
-If you are using a recent Ubuntu or Debian version that defaults to Python 3,
-add the host to the `[py3-hosts]` group.
+If you are using Ubuntu or Debian, add the host to the `[py3-hosts]` group, and
+it will use Python 3 on the server.
 
 (The template has multiple hosts in the groups for testing different OS
 versions, comment them out.)
 
+Test it by connecting to the server:
+
+```shell
+ssh root@web-server
+```
+
+If it doesn't work, run ssh with `-v` flags to see what the problem is.
+You can add more verbosity, e.g. `-vvvv` if you need more detail. File
+permissions are the most common problem.
+
+```shell
+ssh -vv root@web-server
+```
+
+Another common problem is forgetting to add your ssh key when creating the
+Droplet. Destroy the Droplet and create it again.
+
 ### Set variables
 
-Configuration vars defined in `inventory/group_vars/all` apply to all hosts in
+The configuration vars defined in `inventory/group_vars/all` apply to all hosts in
 your project. They are overridden by variables in more specific groups, e.g.
 `inventory/group_vars/web-servers` or for individual hosts, e.g.
-`inventory/group_vars/web-server`.
+`inventory/host_vars/web-server`.
 
-You should be using ssh keys to control access to server accounts, not
-passwords. Ansible uses ssh to deploy the releases, and the `users` Ansible
-role manages the keys to allow login.
+These scripts use ssh keys to control access to server accounts, not passwords.
+Ansible uses ssh to deploy the releases, and the `users` Ansible role manages
+the keys to allow login.
 
 The `inventory/group_vars/all/users.yml` defines a global list of users and
-system admins. It has a live user (me!), change it to match your details:
+system admins. It has a live user (me!), **change it to match your details**:
 
 ```yaml
 users_users:
@@ -159,15 +235,6 @@ users_global_admin_users:
  - jake
 ```
 
-To generate an ssh key:
-
-```shell
-ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
-```
-Set a pass phrase to protect access to your key. Modern Linux and macOS will
-remember your pass phrase so you don't have to enter it every time (see `ssh-add`).
-Add your `~/.ssh/id_rsa.pub` key to your GitHub account.
-
 The `inventory/group_vars/all/elixir-release.yml` file specifies the
 app settings:
 
@@ -175,7 +242,7 @@ app settings:
 # External name of the app, used to name directories and the systemd process
 elixir_release_name: deploy-template
 
-# Internal "Elixir" name of the app, used to by Distillery to name directories
+# Internal "Elixir" name of the app, used to by Distillery to name things
 elixir_release_name_code: deploy_template
 
 # Name of your organization or overall project, used to make a unique dir prefix
@@ -184,7 +251,7 @@ elixir_release_org: myorg
 # OS user the app runs under
 elixir_release_app_user: foo
 
-# OS user for deploy
+# OS user for building and deploying the code
 elixir_release_deploy_user: deploy
 
 # Port that Phoenix listens on
@@ -193,7 +260,8 @@ elixir_release_http_listen_port: 4001
 
 The `inventory/group_vars/build-servers/vars.yml` file specifies the build settings.
 
-Set the name of the repo to be checked out on the build server:
+Set the name of your project git repo, which will be checked out on the build
+server:
 
 ```yaml
 # App git repo
@@ -202,7 +270,8 @@ app_repo: https://github.com/cogini/elixir-deploy-template
 
 ## Set up web server
 
-Run these and other Ansible commands from the `ansible` dir.
+Run these and other Ansible commands from the `ansible` dir in the
+project.
 
 Do initial server setup:
 
@@ -215,15 +284,17 @@ work on groups of servers simultaneously. Configuration tasks are written to be
 idempotent, so we can run the playbook against all our servers and it will make
 whatever changes are needed to get them up to date.
 
-Set up the app (create app dirs, etc.).
+If you add `--check` to the Ansible command, it will show you the changes it is
+planning to do, but doesn't actually run them.
+
+Set up the app (create dirs, etc.):
 
 ```shell
 ansible-playbook -u $USER -v -l web-servers playbooks/deploy-app.yml --skip-tags deploy -D
 ```
 
 Configure runtime secrets, setting the `$HOME/.erlang.cookie` file and
-generate a Conform file at `/etc/deploy-template/deploy_template.conf` with
-variables such as `secret_key_base` and db config:
+generate a Conform config file at `/etc/deploy-template/deploy_template.conf`:
 
 ```shell
 ansible-playbook -u $USER -v -l web-servers playbooks/config-web.yml -D
@@ -298,7 +369,8 @@ MIX_ENV=prod mix do compile, phx.digest, release
 ```
 
 `asdf install` builds Erlang from source, so the first time it runs
-it can take a long time. You may want to run it under `tmux`.
+it can take a long time. If it fails, delete `/home/deploy/.asdf/installs/erlang/20.3`
+and try again. You may want to run it under `tmux`.
 
 ## Deploy the release locally
 
@@ -370,7 +442,7 @@ ssh -A deploy@build-server
 cd ~/build/deploy-template/ansible
 ```
 
-Add the servers in the `ansible/inventory/hosts` `web-servers` group to `~/.ssh/config`:
+Add the servers in `ansible/inventory/hosts` to `~/.ssh/config`:
 
     Host web-server
         HostName 123.45.67.89
@@ -395,8 +467,9 @@ ansible-playbook -u deploy -v -l web-servers playbooks/deploy-app.yml --tags dep
 ### Managing secrets with Ansible
 
 Ansible has a [vault](http://docs.ansible.com/ansible/2.5/user_guide/vault.html) function
-which you can use to store keys. The lets you encrypt variable data and check
-it into source control, and only people with the password can read it.
+which you can use to store keys. It automates the process of encrypting
+variable data so you can check it into source control, so only people with the
+password can read it.
 
 There are trade-offs in managing secrets.
 
@@ -408,8 +481,8 @@ CI server, then that goes double. You don't want to give the CI service access
 to your production keys.
 
 For secure applications like health care, developers should not have access to
-the prod keys. You can restrict vault password access to your ops team, or use
-different keys for different environments.
+the prod environment. You can restrict vault password access to your ops team,
+or use different keys for different environments.
 
 You can also set up a build/deploy server in the cloud which has access to the
 keys and configure the production instances from it. When we run in an AWS auto
@@ -472,7 +545,7 @@ openssl rand -hex 16 | ansible-vault encrypt_string --vault-id vault.key --stdin
 ```
 
 This playbook configures the production server, setting the
-`$HOME/.erlang.cookie` file on the web server and generates a Conform file at
+`$HOME/.erlang.cookie` file on the web server and generates a Conform config file at
 `/etc/deploy-template/deploy_template.conf` with the other vars:
 
 ```shell
@@ -489,10 +562,10 @@ TODO: link to config blog post when it's live
 
 ## Database
 
-For a real app, you will generally need a database. In the simple scenario, a
-single server is used to build and deploy the app, and also runs the db.
+Most apps use a database. The Ansible playbooks create the database
+for you on the build server, assuming everything is running on the same server.
 
-Log into the build environment.
+Whenever you change the db schema, you need to run migrations on the server.
 
 After building the release, but before deploying the code, update the db to
 match the code:
@@ -526,14 +599,13 @@ mix phx.new deploy_template
 
 ## Set up distillery
 
-Generate initial `rel` files:
+Generate initial files in the `rel` dir:
 
 ```shell
 mix release.init
 ```
 
-Modify `rel/config.exs` to set the cookie from a file and update `vm.args.eex`
-to tune the VM settings.
+Modify `rel/config.exs` and `vm.args.eex`.
 
 ## Set up ASDF
 
@@ -551,11 +623,11 @@ config :phoenix, :serve_endpoints, true
 
 ## Add Ansible
 
-Add the tasks to set up the servers and deploy code, in the `ansible`
-directory. Configure the vars in the playbooks to match your app name.
+Add the Ansible tasks to set up the servers and deploy code, in the `ansible`
+directory. Configure the vars in the inventory.
 
-To make it easier to run, this repository contains local copies
-of roles from Ansible Galaxy in `roles.galaxy`. To update them, run:
+This repository contains local copies of roles from Ansible Galaxy in
+`roles.galaxy`. To install them, run:
 
 ```shell
 ansible-galaxy install --roles-path roles.galaxy -r install_roles.yml
