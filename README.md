@@ -84,6 +84,11 @@ mix local.rebar --force
 mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez --force
 ```
 
+Install libraries into the ASDF node dirs:
+```shell
+npm install -g brunch
+```
+
 Confirm that it works by building the app the normal way:
 
 ```shell
@@ -96,6 +101,7 @@ You should be able to run the app locally with:
 
 ```shell
 mix ecto.create
+(cd assets && npm install && node node_modules/brunch/bin/brunch build)
 iex -S mix phx.server
 open http://localhost:4000/
 ```
