@@ -95,6 +95,7 @@ mix compile
 You should be able to run the app locally with:
 
 ```shell
+mix ecto.create
 iex -S mix phx.server
 open http://localhost:4000/
 ```
