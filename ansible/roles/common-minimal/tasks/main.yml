@@ -7,6 +7,8 @@
     # yum: name=epel-release state=present
     yum: name=epel-release state=present update_cache=yes
 
+  # We sometimes have problems with old kernels filling up a small /boot
+  # partition on dedicated servers, reduce the number
   - name: Limit number of previous kernels
     lineinfile:
       dest: /etc/yum.conf
