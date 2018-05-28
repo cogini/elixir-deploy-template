@@ -63,7 +63,7 @@
   roles:
     - tools-other
     - asdf
-  pre_tasks:
+  post_tasks:
     - name: Set vars
       set_fact:
         asdf_nodejs_keyring: "/home/{{ elixir_release_deploy_user }}/.asdf/keyrings/nodejs"
