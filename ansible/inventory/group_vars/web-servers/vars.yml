@@ -9,7 +9,10 @@ users_app_group: "{{ elixir_release_app_user }}"
 # restarts, as the deploy user needs to be able to create a file
 # with permissions such that it can be deleted by the app user.
 users_deploy_groups:
+  # Allow deploy user to write flag file owned by app user
   - "{{ users_app_user }}"
+  # Allow deploy user to look at system logs with journalctl
+  - systemd-journal
 
 # Users who can ssh into the app account
 # This is not strictly needed, but can be useful for devs
