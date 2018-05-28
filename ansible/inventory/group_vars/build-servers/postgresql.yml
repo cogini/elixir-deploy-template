@@ -16,11 +16,18 @@ postgresql_user_privileges:
     priv: 'ALL'
     role_attr_flags: 'LOGIN,NOSUPERUSER,NOCREATEDB'
 
+# Require password to access db
 postgresql_default_auth_method: "md5"
 
 postgresql_pg_hba_default:
-  # - { type: local, database: all, user: "{{ postgresql_admin_user }}", address: "", method: "{{ postgresql_default_auth_method }}", comment: "" }
-  - { type: local, database: all, user: "{{ postgresql_admin_user }}", address: "", method: "trust", comment: "" }
-  - { type: local, database: all, user: all, address: "",             method: "{{ postgresql_default_auth_method }}", comment: '"local" is for Unix domain socket connections only' }
+  # Allow OS postgres user to manage databases without a password
+  - { type: local, database: all, user: "{{ postgresql_admin_user }}", address: "", method: "peer", comment: "" }
+  # Same for other users, as long as OS user matches PG user
+  # - { type: local, database: all, user: all, address: "", method: "peer", comment: '"local" is for Unix domain socket connections only' }
+  - { type: local, database: all, user: all, address: "", method: "{{ postgresql_default_auth_method }}", comment: '"local" is for Unix domain socket connections only' }
   - { type: host,  database: all, user: all, address: "127.0.0.1/32", method: "{{ postgresql_default_auth_method }}", comment: "IPv4 local connections:" }
-  - { type: host,  database: all, user: all, address: "::1/128",      method: "{{ postgresql_default_auth_method }}", comment: "IPv6 local connections:" }
+  # Replication
+  # - { type: local, database: replication, user: all, address: "", method: "peer"", comment: 'Allow replication connections from localhost, by a user with the replication privilege.' }
+  # - { type: host, database: replication, user: all, address: "127.0.0.1/32", method: "{{ postgresql_default_auth_method }}", comment: "" }
+  # - { type: host, database: replication, user: all, address: "::1/128",      method: "{{ postgresql_default_auth_method }}", comment: "" }
+  - { type: host, database: all, user: all, address: "::1/128",      method: "{{ postgresql_default_auth_method }}", comment: "IPv6 local connections:" }
