@@ -145,7 +145,7 @@ sudo easy_install pip
 See [the Ansible docs](http://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
 for other options.
 
-## Set up ssh key
+## Generate an ssh key
 
 We use ssh keys to control access to servers instead of passwords. This is more
 secure and easier to automate.
