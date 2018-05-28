@@ -27,10 +27,10 @@ asdf install
 echo "Updating Elixir libs"
 mix local.hex --force
 mix local.rebar --force
+mix deps.get --only "$MIX_ENV"
 
 echo "Updating node libraries"
 (cd assets && npm install && node node_modules/brunch/bin/brunch build)
 
 echo "Building release"
-mix deps.get --only "$MIX_ENV"
 mix do compile, phx.digest, release
