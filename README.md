@@ -75,13 +75,16 @@ On macOS, first install [Homebrew](https://brew.sh/), then run:
 ```shell
 # Erlang
 brew install autoconf automake libtool openssl wxmac
-brew cask install java # optional, installs Java 10 by default
+# Install Java (optional) to avoid popup prompts
+# If you already have Java installed, you don't need to do this
+brew cask install java
+
 # Node.js
 brew install gpg
 bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
 ```
 
-For Linux, see `ansible/vars/build-Debian.yml` and `ansible/vars/build-RedHat.yml`.
+For Linux, see packages in `ansible/vars/build-Debian.yml` and `ansible/vars/build-RedHat.yml`.
 
 Use ASDF to install the versions of Erlang, Elixir and Node.js specified in the
 `.tool-versions` file:
