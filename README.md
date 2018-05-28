@@ -59,6 +59,8 @@ safe to install on your machine, it won't conflict with anything else, that's
 it's whole reason for existing.
 
 Install ASDF as described in [the ASDF docs](https://github.com/asdf-vm/asdf).
+After installing, log out of your shell and log back in to activate the
+scripts in `~/.bashrc`.
 
 Install ASDF plugins for our tools:
 
@@ -92,7 +94,7 @@ Use ASDF to install the versions of Erlang, Elixir and Node.js specified in the
 ```shell
 asdf install
 ```
-Run this multiple times until everything is installed (should be twice).
+Run this multiple times until everything is installed (may be twice).
 
 Install libraries into the ASDF Elixir dirs:
 
