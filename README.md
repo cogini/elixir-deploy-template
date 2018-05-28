@@ -122,6 +122,7 @@ You should be able to run the app locally with:
 ```shell
 mix ecto.create
 (cd assets && npm install && node node_modules/brunch/bin/brunch build)
+
 iex -S mix phx.server
 open http://localhost:4000/
 ```
@@ -167,11 +168,11 @@ Go to [Digital Ocean](https://m.do.co/c/150575a88316) (affiliate link) and
 create a Droplet (virtual server).
 
 * **Choose an image**: If you are [not sure which distro to
-  use](/blog/choosing-a-linux-distribution/), choose CentOS 7.
+  use](/blog/choosing-a-linux-distribution/), choose CentOS 7
 * **Choose a size**: The smallest, $5/month Droplet is fine
 * **Choose a datacenter region**: Select a data center near you
 * **Add your SSH keys**: Select the "New SSH Key" button, and paste the
-  contents of your `~/.ssh/id_rsa.pub` file.
+  contents of your `~/.ssh/id_rsa.pub` file
 * **Choose a hostname**: The default name is fine, but a bit awkward to type. Use
   "web-server" or whatever you like.
 
@@ -199,13 +200,15 @@ file in the project:
     [build-servers]
     web-server
 
-The host name here should match the `Host` name in your `.ssh/config` file.
+`[web-servers]` is a group of web servers. `web-server` is the hostname from
+`Host` line in your `.ssh/config` file. `[build-servers]` is the group of
+build servers. It can be the same as your web server.
 
 If you are using Ubuntu or Debian, add the host to the `[py3-hosts]` group, and
-it will use Python 3 on the server.
+it will use the Python 3 interpreter that comes by default on the server.
 
-(The repo has multiple hosts in the groups for testing different OS versions,
-comment them out.)
+The repo has multiple hosts in the groups for testing different OS versions,
+comment them out.
 
 Test it by connecting to the server:
 
@@ -273,7 +276,8 @@ elixir_release_http_listen_port: 4001
 
 The `inventory/group_vars/build-servers/vars.yml` file specifies the build settings.
 
-It specifies the project's git repo, which will be checked out on the build server:
+It specifies the project's git repo, which the Ansible playbook will check out
+on the build server:
 
 ```yaml
 # App git repo
@@ -290,16 +294,18 @@ Do initial server setup:
 ansible-playbook -u root -v -l web-servers playbooks/setup-web.yml -D
 ```
 
-In this command, `web-servers` is the group of servers. Ansible allows you to
-work on groups of servers simultaneously. Configuration tasks are written to be
+In this command, `web-servers` is the group of servers, but you could also
+specify a specific host like `web-server`. Ansible allows you to work on groups
+of servers simultaneously. Configuration tasks are generally written to be
 idempotent, so we can run the playbook against all our servers and it will make
 whatever changes are needed to get them up to date.
 
 The `-v` flag controls verbosity, you can add more v's to get more debug info.
 The `-D` flag shows diffs of the changes Ansible makes on the server. If you
 add `--check` to the Ansible command, it will show you the changes it is
-planning to do, but doesn't actually run them (these scripts are safe to run,
-but it may error out during the play if required packages are not installed).
+planning to do, but doesn't actually run them. These scripts are safe to run in
+check mode, but may error out during the play if required packages are not
+installed.
 
 Set up the app (create dirs, etc.):
 
@@ -308,7 +314,8 @@ ansible-playbook -u $USER -v -l web-servers playbooks/deploy-app.yml --skip-tags
 ```
 
 Configure runtime secrets, setting the `$HOME/.erlang.cookie` file and
-generate a Conform config file at `/etc/deploy-template/deploy_template.conf`:
+generate a [Conform](https://github.com/bitwalker/conform) config file at
+`/etc/deploy-template/deploy_template.conf`:
 
 ```shell
 ansible-playbook -u $USER -v -l web-servers playbooks/config-web.yml -D
@@ -370,25 +377,29 @@ scripts/build-release.sh
 That script runs:
 
 ```shell
-# Pull latest code from git
+echo "Pulling latest code from git"
 git pull
 
-# Update versions of Erlang/Elixir/Node.js if necessary
+echo "Updating versions of Erlang/Elixir/Node.js if necessary"
 asdf install
 asdf install
 
-# Update Elixir libs
+echo "Updating Elixir libs"
 mix local.hex --force
 mix local.rebar --force
+mix deps.get --only "$MIX_ENV"
 
-# Build app and release
-mix deps.get --only prod
-MIX_ENV=prod mix do compile, phx.digest, release
+echo "Updating node libraries"
+(cd assets && npm install && node node_modules/brunch/bin/brunch build)
+
+echo "Building release"
+mix do compile, phx.digest, release
 ```
 
 `asdf install` builds Erlang from source, so the first time it runs it can take
-a long time. If it fails, delete `/home/deploy/.asdf/installs/erlang/20.3` and
-try again. You may want to run it under `tmux`.
+a long time. If it fails due to a lost connection, delete
+`/home/deploy/.asdf/installs/erlang/20.3` and try again.
+You may want to run it under `tmux`.
 
 ## Deploy the release locally
 
@@ -429,8 +440,8 @@ curl -v http://localhost:4001/
 
 Have a look at the logs:
 ```shell
-# systemctl status deploy-template
-# journalctl -r -u deploy-template
+systemctl status deploy-template
+journalctl -r -u deploy-template
 ```
 
 Make a request to the machine over the network on port 80 through the magic of
