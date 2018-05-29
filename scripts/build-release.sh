@@ -29,8 +29,11 @@ mix local.hex --force
 mix local.rebar --force
 mix deps.get --only "$MIX_ENV"
 
+echo "Compiling"
+mix compile
+
 echo "Updating node libraries"
 (cd assets && npm install && node node_modules/brunch/bin/brunch build)
 
 echo "Building release"
-mix do compile, phx.digest, release
+mix do phx.digest, release
