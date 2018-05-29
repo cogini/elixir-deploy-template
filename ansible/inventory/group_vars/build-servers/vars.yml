@@ -2,6 +2,8 @@
 
 # App git repo
 app_repo: https://github.com/cogini/elixir-deploy-template
+# App Version, can be branch name, SHA-1, tag name, default to HEAD
+# app_version: HEAD
 
 # Users who can ssh into the deploy account
 # This is needed to run the build and deploy scripts
