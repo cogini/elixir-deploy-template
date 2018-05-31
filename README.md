@@ -94,7 +94,7 @@ Use ASDF to install the versions of Erlang, Elixir and Node.js specified in the
 ```shell
 asdf install
 ```
-Run this multiple times until everything is installed (may be twice).
+Run this multiple times until everything is installed (should be twice).
 
 Install libraries into the ASDF Elixir dirs:
 
@@ -389,11 +389,14 @@ mix local.hex --force
 mix local.rebar --force
 mix deps.get --only "$MIX_ENV"
 
+echo "Compiling"
+mix compile
+
 echo "Updating node libraries"
 (cd assets && npm install && node node_modules/brunch/bin/brunch build)
 
 echo "Building release"
-mix do compile, phx.digest, release
+mix do phx.digest, release
 ```
 
 `asdf install` builds Erlang from source, so the first time it runs it can take
