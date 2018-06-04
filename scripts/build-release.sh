@@ -22,11 +22,13 @@ git pull
 
 echo "Updating versions of Erlang/Elixir/Node.js if necessary"
 asdf install
+# ASDF is currently changing the way it handles return codes
+# Until that's all sorted, we need to run it twice.
 asdf install
 
 echo "Updating Elixir libs"
-mix local.hex --force
-mix local.rebar --force
+mix local.hex --if-missing --force
+mix local.rebar --if-missing --force
 mix deps.get --only "$MIX_ENV"
 
 echo "Compiling"

@@ -99,9 +99,9 @@ Run this multiple times until everything is installed (should be twice).
 Install libraries into the ASDF Elixir dirs:
 
 ```shell
-mix local.hex --force
-mix local.rebar --force
-mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez --force
+mix local.hex --if-missing --force
+mix local.rebar --if-missing --force
+# mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez --if-missing --force
 ```
 
 Install libraries into the ASDF node dirs:
@@ -161,6 +161,7 @@ macOS and modern Linux desktops will remember your pass phrase in the keyring
 when you log in so you don't have to enter it every time.
 
 Add the `~/.ssh/id_rsa.pub` public key file to your GitHub account.
+See [the GitHub docs](https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/).
 
 # Set up a server
 
@@ -189,6 +190,23 @@ The file permissions on `~/.ssh/config` need to be secure or ssh will be unhappy
 chmod 600 ~/.ssh/config
 ```
 
+Test it by connecting to the server:
+
+```shell
+ssh root@web-server
+```
+
+If it doesn't work, run ssh with `-v` flags to see what the problem is.
+You can add more verbosity, e.g. `-vvvv` if you need more detail.
+
+```shell
+ssh -vv root@web-server
+```
+
+File permissions are the most common cause of problems with ssh. Another common
+problem is forgetting to add your ssh key when creating the Droplet. Destroy
+the Droplet and create it again.
+
 ## Configure Ansible
 
 Add the hosts to the groups in the Ansible inventory `ansible/inventory/hosts`
@@ -209,23 +227,6 @@ it will use the Python 3 interpreter that comes by default on the server.
 
 The repo has multiple hosts in the groups for testing different OS versions,
 comment them out.
-
-Test it by connecting to the server:
-
-```shell
-ssh root@web-server
-```
-
-If it doesn't work, run ssh with `-v` flags to see what the problem is.
-You can add more verbosity, e.g. `-vvvv` if you need more detail.
-
-```shell
-ssh -vv root@web-server
-```
-
-File permissions are the most common cause of problems with ssh. Another common
-problem is forgetting to add your ssh key when creating the Droplet. Destroy
-the Droplet and create it again.
 
 ### Set Ansible variables
 
@@ -385,8 +386,8 @@ asdf install
 asdf install
 
 echo "Updating Elixir libs"
-mix local.hex --force
-mix local.rebar --force
+mix local.hex --if-missing --force
+mix local.rebar --if-missing --force
 mix deps.get --only "$MIX_ENV"
 
 echo "Compiling"
