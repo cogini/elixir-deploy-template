@@ -311,7 +311,7 @@ installed.
 Set up the app (create dirs, etc.):
 
 ```shell
-ansible-playbook -u $USER -v -l web-servers playbooks/deploy-app.yml --skip-tags deploy -D
+ansible-playbook -u root -v -l web-servers playbooks/deploy-app.yml --skip-tags deploy -D
 ```
 
 Configure runtime secrets, setting the `$HOME/.erlang.cookie` file and
@@ -319,7 +319,7 @@ generate a [Conform](https://github.com/bitwalker/conform) config file at
 `/etc/deploy-template/deploy_template.conf`:
 
 ```shell
-ansible-playbook -u $USER -v -l web-servers playbooks/config-web.yml -D
+ansible-playbook -u root -v -l web-servers playbooks/config-web.yml -D
 ```
 
 For ease of getting started, this generates secrets on your local machine and
@@ -344,7 +344,7 @@ PostgreSQL, assuming we are running the web app on the same server.
 Configure `config/prod.secret.exs` on the build server:
 
 ```shell
-ansible-playbook -u $USER -v -l build-servers playbooks/config-build.yml -D
+ansible-playbook -u root -v -l build-servers playbooks/config-build.yml -D
 ```
 
 Again, see below for discussion about managing secrets.
@@ -465,7 +465,7 @@ app runs under and executing:
 From your dev machine:
 
 ```shell
-ansible-playbook -u $USER -v -l build-servers playbooks/setup-ansible.yml -D
+ansible-playbook -u root -v -l build-servers playbooks/setup-ansible.yml -D
 ```
 
 On the build server:
@@ -588,7 +588,7 @@ ansible-playbook --vault-password-file vault.key -u $USER -v -l web-servers play
 This playbook configures `config/prod.secret.exs` on the build server.
 
 ```shell
-ansible-playbook --vault-password-file vault.key -u $USER -v -l build-servers playbooks/config-build.yml -D
+ansible-playbook --vault-password-file vault.key -u root -v -l build-servers playbooks/config-build.yml -D
 ```
 
 TODO: link to config blog post when it's live
