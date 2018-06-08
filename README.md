@@ -86,7 +86,8 @@ brew install gpg
 bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
 ```
 
-For Linux, see packages in `ansible/vars/build-Debian.yml` and `ansible/vars/build-RedHat.yml`.
+For Linux, see [the ASDF Erlang docs](https://github.com/asdf-vm/asdf-erlang).
+
 
 Use ASDF to install the versions of Erlang, Elixir and Node.js specified in the
 `.tool-versions` file:
@@ -301,12 +302,14 @@ of servers simultaneously. Configuration tasks are generally written to be
 idempotent, so we can run the playbook against all our servers and it will make
 whatever changes are needed to get them up to date.
 
-The `-v` flag controls verbosity, you can add more v's to get more debug info.
-The `-D` flag shows diffs of the changes Ansible makes on the server. If you
-add `--check` to the Ansible command, it will show you the changes it is
-planning to do, but doesn't actually run them. These scripts are safe to run in
-check mode, but may error out during the play if required packages are not
-installed.
+The `-u` flag specifies which user account to use on the server. We have to use
+root to do the initial bootstrap, but you should generally use your own user
+account, assuming it has sudo. The `-v` flag controls verbosity, you can add
+more v's to get more debug info.  The `-D` flag shows diffs of the changes
+Ansible makes on the server. If you add `--check` to the Ansible command, it
+will show you the changes it is planning to do, but doesn't actually run them.
+These scripts are safe to run in check mode, but may give an error during the play
+if required OS packages are not installed.
 
 Set up the app (create dirs, etc.):
 
