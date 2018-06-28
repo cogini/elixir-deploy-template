@@ -341,8 +341,12 @@ Set up the server:
 ansible-playbook -u root -v -l build-servers playbooks/setup-build.yml -D
 ```
 
-This sets up the build environment, e.g. install ASDF. It also installs
-PostgreSQL, assuming we are running the web app on the same server.
+This sets up the build environment, e.g. install ASDF.
+
+Install PostgreSQL, assuming we are running the web app on the same server.
+```shell
+ansible-playbook -u root -v -l build-servers playbooks/setup-db.yml -D
+```
 
 Configure `config/prod.secret.exs` on the build server:
 
@@ -598,8 +602,8 @@ TODO: link to config blog post when it's live
 
 ## Database
 
-Most apps use a database. The Ansible playbooks create the database
-for you on the build server, assuming everything is running on the same server.
+Most apps use a database. The Ansible playbook `playbooks/setup-db.yml` creates
+the database for you.
 
 Whenever you change the db schema, you need to run migrations on the server.
 
@@ -732,6 +736,7 @@ ansible-playbook -u root -v -l web-servers playbooks/setup-web.yml -D
 ansible-playbook -u root -v -l web-servers playbooks/deploy-app.yml --skip-tags deploy -D
 ansible-playbook -u root -v -l web-servers playbooks/config-web.yml -D
 ansible-playbook -u root -v -l build-servers playbooks/setup-build.yml -D
+ansible-playbook -u root -v -l build-servers playbooks/setup-db.yml -D
 ansible-playbook -u root -v -l build-servers playbooks/config-build.yml -D
 ```
 

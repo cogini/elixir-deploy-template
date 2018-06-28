@@ -1,6 +1,6 @@
 ---
 # Build system setup
-# ansible-playbook -u $USER -v -l elixir-deploy-template playbooks/setup-build.yml -D
+# ansible-playbook -u $USER -v -l build-server playbooks/setup-build.yml -D
 
 # - name: Bootstrap Python 2
 #   hosts: debian-servers
@@ -34,17 +34,6 @@
     - common-minimal
     - tools-other
     - iptables
-
-- name: Install postgresql
-  hosts: '*'
-  become: true
-  pre_tasks:
-    - name: Set db_pass
-      set_fact:
-        db_pass: "{{ lookup('password', '/tmp/db_pass.txt length=16') }}"
-      when: db_pass is not defined
-  roles:
-    - ANXS.postgresql
 
 - name: Install asdf
   hosts: '*'
