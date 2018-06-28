@@ -219,9 +219,13 @@ file in the project:
     [build-servers]
     web-server
 
+    [db-servers]
+    web-server
+
 `[web-servers]` is a group of web servers. `web-server` is the hostname from
 the `Host` line in your `.ssh/config` file. `[build-servers]` is the group of
-build servers. It can be the same as your web server.
+build servers. It can be the same as your web server. `[db-servers]` is the
+group of database servers, which can be the same.
 
 If you are using Ubuntu or Debian, add the host to the `[py3-hosts]` group, and
 it will use the Python 3 interpreter that comes by default on the server.
