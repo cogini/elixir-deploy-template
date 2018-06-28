@@ -97,7 +97,7 @@ asdf install
 ```
 Run this multiple times until everything is installed (should be twice).
 
-Install libraries into the ASDF Elixir dirs:
+Install Elixir libraries into the ASDF dir:
 
 ```shell
 mix local.hex --if-missing --force
@@ -105,7 +105,7 @@ mix local.rebar --if-missing --force
 # mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez --if-missing --force
 ```
 
-Install libraries into the ASDF node dirs:
+Install node libraries into the ASDF dir:
 ```shell
 npm install -g brunch
 ```
@@ -220,7 +220,7 @@ file in the project:
     web-server
 
 `[web-servers]` is a group of web servers. `web-server` is the hostname from
-`Host` line in your `.ssh/config` file. `[build-servers]` is the group of
+the `Host` line in your `.ssh/config` file. `[build-servers]` is the group of
 build servers. It can be the same as your web server.
 
 If you are using Ubuntu or Debian, add the host to the `[py3-hosts]` group, and
@@ -721,4 +721,26 @@ Add to `config/prod.exs`:
 config :shutdown_flag,
   flag_file: "/var/tmp/deploy/deploy-template/shutdown.flag",
   check_delay: 10_000
+```
+
+# TL;DR
+
+Once you have configured Ansible, set up the servers:
+
+```shell
+ansible-playbook -u root -v -l web-servers playbooks/setup-web.yml -D
+ansible-playbook -u root -v -l web-servers playbooks/deploy-app.yml --skip-tags deploy -D
+ansible-playbook -u root -v -l web-servers playbooks/config-web.yml -D
+ansible-playbook -u root -v -l build-servers playbooks/setup-build.yml -D
+ansible-playbook -u root -v -l build-servers playbooks/config-build.yml -D
+```
+
+Build and deploy the code:
+
+```shell
+# Check out latest code and build release on server
+ssh -A deploy@build-server build/deploy-template/scripts/build-release.sh
+
+# Deploy release
+ssh -A deploy@build-server build/deploy-template/scripts/deploy-local.sh
 ```
