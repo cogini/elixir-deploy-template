@@ -1,5 +1,9 @@
 # Vars for build-servers group
 
+# OS user account used to build the app
+users_deploy_user: "{{ elixir_release_deploy_user }}"
+users_deploy_group: "{{ elixir_release_deploy_user }}"
+
 # App git repo
 app_repo: https://github.com/cogini/elixir-deploy-template
 # App Version, can be branch name, SHA-1, tag name, default to HEAD
