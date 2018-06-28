@@ -24,3 +24,5 @@ users_deploy_groups:
 # users_app_users: "{{ users_global_admin_users }}"
 # users_app_users:
 #   - jake
+
+db_host: localhost
