@@ -29,3 +29,6 @@ elixir_release_conf_dir: "/etc/{{ elixir_release_name }}"
 
 # Path to conform conf file
 elixir_release_conform_conf_path: "{{ elixir_release_conf_dir }}/{{ elixir_release_name_code }}.conf"
+
+# elixir_release_chroot: true
+# elixir_release_paranoia: true
