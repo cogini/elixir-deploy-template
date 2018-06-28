@@ -4,6 +4,12 @@
 # These tasks set up the target system for the app, creating directories, etc.
 # Run them from a user with sudo permissions.
 
+- name: Load OS vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "vars-{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+    - "vars-default-distribution.yml"
+
 # Dirs owned by deploy user
 - name: Create deploy dirs
   file: path={{ item }} state=directory owner={{ elixir_release_deploy_user }} group={{ elixir_release_app_group }} mode=0750
@@ -12,31 +18,72 @@
     - "{{ elixir_release_releases_dir }}"
     - "{{ elixir_release_scripts_dir }}"
 
+# Owned by deploy user
+
+# Created by systemd > 235 with ConfigurationDirectory
 - name: Create conf dir
-  file: path={{ elixir_release_conf_dir }} state=directory owner={{ elixir_release_deploy_user }} group={{ elixir_release_app_group }} mode=0750
+  file:
+    path: "{{ elixir_release_conf_dir_base }}/{{ elixir_release_conf_dir }}"
+    state: directory
+    owner: "{{ elixir_release_deploy_user }}"
+    group: "{{ elixir_release_app_group }}"
+    mode: "0750"
   when: elixir_release_conf_dir is defined
+
+- name: Create restart flag dir
+  file: path={{ elixir_release_restart_flag_dir }} state=directory owner={{ elixir_release_deploy_user }} group={{ elixir_release_deploy_group }} mode=0770
+  when: "elixir_release_restart_method == 'systemd_flag'"
 
 - name: Create shutdown flag dir
   file: path={{ elixir_release_shutdown_flag_dir }} state=directory owner={{ elixir_release_deploy_user }} group={{ elixir_release_app_group }} mode=0770
   when: "elixir_release_restart_method == 'touch'"
 
-
 # Dirs owned/writable by app user
+
+# Created by systemd > 235 with LogsDirectory
 - name: Create log dir
-  file: path={{ elixir_release_log_dir }} state=directory owner={{ elixir_release_app_user }} group={{ elixir_release_app_group }} mode=0700
+  file:
+    path: "{{ elixir_release_log_dir_base }}/{{ elixir_release_log_dir }}"
+    state: directory
+    owner: "{{ elixir_release_app_user }}"
+    group: "{{ elixir_release_app_group }}"
+    mode: "0700"
   when: elixir_release_log_dir is defined
 
+# Should use /var/tmp with PrivateTmp=yes
 - name: Create temp dir
   file: path={{ elixir_release_temp_dir }} state=directory owner={{ elixir_release_app_user }} group={{ elixir_release_app_group }} mode=0700
   when: elixir_release_temp_dir is defined
 
-- name: Create var dir
-  file: path={{ elixir_release_var_dir }} state=directory owner={{ elixir_release_app_user }} group={{ elixir_release_app_group }} mode=0700
-  when: elixir_release_var_dir is defined
+# Created by systemd > 235 with StateDirectory
+- name: Create state dir
+  file:
+    path: "{{ elixir_release_state_dir }}"
+    state: directory
+    owner: "{{ elixir_release_app_user }}"
+    group: "{{ elixir_release_app_group }}"
+    mode: "0700"
+  when: elixir_release_state_dir is defined
 
-- name: Create data dir
-  file: path={{ elixir_release_data_dir }} state=directory owner={{ elixir_release_app_user }} group={{ elixir_release_app_group }} mode=0700
-  when: elixir_release_data_dir is defined
+# Created by systemd > 235 with CacheDirectory
+- name: Create cache dir
+  file:
+    path: "{{ elixir_release_cache_dir }}"
+    state: directory
+    owner: "{{ elixir_release_app_user }}"
+    group: "{{ elixir_release_app_group }}"
+    mode: "0700"
+  when: elixir_release_cache_dir is defined
+
+# Obsolete
+# - name: Create var dir
+#   file: path={{ elixir_release_var_dir }} state=directory owner={{ elixir_release_app_user }} group={{ elixir_release_app_group }} mode=0700
+#   when: elixir_release_var_dir is defined
+
+# Obsolete
+# - name: Create data dir
+#   file: path={{ elixir_release_data_dir }} state=directory owner={{ elixir_release_app_user }} group={{ elixir_release_app_group }} mode=0700
+#   when: elixir_release_data_dir is defined
 
 - name: Create remote_console.sh
   template:

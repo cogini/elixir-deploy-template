@@ -4,6 +4,7 @@
 Description={{ elixir_release_name }} server
 After=local-fs.target network.target
 
+# https://www.freedesktop.org/software/systemd/man/systemd.exec.html
 [Service]
 Type=simple
 User={{ elixir_release_app_user }}
@@ -13,17 +14,75 @@ ExecStart={{ elixir_release_deploy_dir }}/current/bin/{{ elixir_release_name_cod
 ExecStop={{ elixir_release_deploy_dir }}/current/bin/{{ elixir_release_name_code }} stop
 Environment=LANG=en_US.UTF-8
 Environment=MIX_ENV={{ elixir_release_mix_env }}
-Environment=RELEASE_MUTABLE_DIR={{ elixir_release_temp_dir }}
+Environment=RELEASE_MUTABLE_DIR={{ elixir_release_mutable_dir }}
 Environment=PORT={{ elixir_release_http_listen_port }}
 {% if elixir_release_conform_conf_path is defined %}
 Environment=CONFORM_CONF_PATH={{ elixir_release_conform_conf_path }}
 {% endif %}
 # systemd ignores /etc/security/limits
 LimitNOFILE={{ elixir_release_limit_nofile }}
-UMask=0027
+UMask={{ elixir_release_umask }}
 SyslogIdentifier={{ elixir_release_name }}
 Restart=always
 RestartSec={{ elixir_release_systemd_restart_sec }}
+# PermissionsStartOnly=true
+RuntimeDirectory={{ elixir_release_runtime_dir }}
+RuntimeDirectoryMode={{ elixir_release_runtime_dir_mode }}
+{% if elixir_release_systemd_version >= 235 %}
+RuntimeDirectoryPreserve={{ elixir_release_runtime_dir_preserve }}
+{% endif %}
+{% if elixir_release_conf_dir is defined %}
+# Not supported on CentOS 7, Ubuntu 16.04 or Debian 9
+# ConfigurationDirectory={{ elixir_release_conf_dir }}
+# ConfigurationDirectoryMode={{ elixir_release_conf_dir_mode }}
+{% endif %}
+{% if elixir_release_log_dir is defined %}
+LogsDirectory={{ elixir_release_log_dir }}
+LogsDirectoryMode={{ elixir_release_log_dir_mode }}
+{% endif %}
+{% if elixir_release_state_dir is defined %}
+StateDirectory={{ elixir_release_state_dir }}
+StateDirectoryMode={{ elixir_release_state_dir_mode }}
+{% endif %}
+{% if elixir_release_cache_dir is defined %}
+StateDirectory={{ elixir_release_cache_dir }}
+StateDirectoryMode={{ elixir_release_cache_dir_mode }}
+{% endif %}
+{% if elixir_release_chroot %}
+RootDirectory={{ elixir_release_deploy_dir }}
+{% if elixir_release_read_write_paths | length > 1 %}
+ReadWritePaths={{ elixir_release_read_write_paths | join(' ') }}
+{% endif %}
+{% if elixir_release_read_only_paths | length > 1 %}
+ReadWritePaths={{ elixir_release_read_only_paths | join(' ') }}
+{% endif %}
+{% if elixir_release_inaccessible_paths | length > 1 %}
+ReadWritePaths={{ elixir_release_inaccessible_paths | join(' ') }}
+{% endif %}
+{% endif %}
+{% if elixir_release_paranoia %}
+NoNewPrivileges=yes
+PrivateDevices=yes
+PrivateTmp=yes
+ProtectSystem=full
+ProtectHome=yes
+{% if elixir_release_systemd_version >= 232 %}
+PrivateUsers=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+{% endif %}
+{% if elixir_release_systemd_version >= 233 %}
+MountAPIVFS=yes
+{% endif %}
+{% if elixir_release_systemd_version >= 235 %}
+LockPersonality=yes
+{% endif %}
+# RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+# SELinuxContext=
+# AppArmorProfile=
+# SmackProcessLabel=
+{% endif %}
 # KillMode=process # default control-group
 # TimeoutSec=10
 # RemainAfterExit=no

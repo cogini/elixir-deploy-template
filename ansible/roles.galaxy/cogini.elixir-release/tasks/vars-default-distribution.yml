@@ -1,0 +1,2 @@
+# Default OS vars if nothing matches
+elixir_release_systemd_version: 219

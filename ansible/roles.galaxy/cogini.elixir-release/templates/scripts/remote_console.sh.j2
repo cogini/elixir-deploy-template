@@ -15,7 +15,7 @@ BASEDIR="$BINDIR/.."
 cd "$BASEDIR/current"
 
 export MIX_ENV="{{ elixir_release_mix_env }}"
-export RELEASE_MUTABLE_DIR="{{ elixir_release_temp_dir }}"
+export RELEASE_MUTABLE_DIR="{{ elixir_release_mutable_dir }}"
 
 {% if elixir_release_conform_conf_path is defined %}
 export CONFORM_CONF_PATH="{{ elixir_release_conform_conf_path }}"

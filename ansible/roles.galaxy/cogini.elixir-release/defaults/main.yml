@@ -8,6 +8,11 @@ elixir_release_org: myorg
 # The external name of the app, used to name directories and the systemd unit
 elixir_release_name: foo
 
+# Name of directories
+elixir_release_dir_prefix: "{{ elixir_release_org }}/{{ elixir_release_name }}"
+# If you just want to use the app name, set it to
+# elixir_release_dir_prefix: "{{ elixir_release_name }}"
+
 # The internal "Elixir" name of the app, used to by Distillery to name
 # directories and scripts
 
@@ -34,40 +39,84 @@ elixir_release_app_user: "{{ elixir_release_name }}"
 elixir_release_app_group: "{{ elixir_release_app_user }}"
 
 # Base directory for deploy files
-elixir_release_deploy_dir: /opt/{{ elixir_release_org }}/{{ elixir_release_name }}
+elixir_release_deploy_dir: "/opt/{{ elixir_release_dir_prefix }}"
 elixir_release_releases_dir: "{{ elixir_release_deploy_dir }}/releases"
 
 # Location for app temp files
-elixir_release_temp_dir: /var/tmp/{{ elixir_release_org }}/{{ elixir_release_name }}
+# elixir_release_temp_dir: /var/tmp/{{ elixir_release_dir_prefix }}
 
 # Location of runtime scripts, e.g. used in cron jobs
 elixir_release_scripts_dir: "{{ elixir_release_deploy_dir }}/scripts"
 
+# Location of app runtime data, under /run
+elixir_release_runtime_dir_base: "/run"
+elixir_release_runtime_dir: "{{ elixir_release_name }}"
+elixir_release_runtime_dir_mode: "0750"
+elixir_release_runtime_dir_preserve: "no"
+
+elixir_release_mutable_dir: "{{ elixir_release_runtime_dir_base }}/{{ elixir_release_runtime_dir }}"
+
 # These dirs are only created if they are defined
 # Location of per-machine config files
-# elixir_release_conf_dir: /etc/{{ elixir_release_name }}
-
-# Location of runtime logs
-# elixir_release_log_dir: /var/log/{{ elixir_release_name }}
-
-# Base directory for app data
-# elixir_release_var_dir: /var/{{ elixir_release_org }}/{{ elixir_release_name }}
-
-# Location of app data files
-# elixir_release_data_dir: "{{ elixir_release_var_dir }}/data"
+elixir_release_conf_dir_base: "/etc"
+# elixir_release_conf_dir: "{{ elixir_release_name }}"
+elixir_release_conf_dir_mode: "0750"
 
 # Path to conform conf file
 # elixir_release_conform_conf_path: "{{ elixir_release_conf_dir }}/{{ elixir_release_name_code }}.conf"
 
-# Location of flag dir
-elixir_release_shutdown_flag_dir: "/var/tmp/{{ elixir_release_deploy_user }}/{{ elixir_release_name }}"
+# Location of runtime logs
+elixir_release_log_dir_base: "/var/log"
+# elixir_release_log_dir: "{{ elixir_release_name }}"
+elixir_release_log_dir_mode: "0750"
+
+# Location for app state data, under /var/lib
+elixir_release_state_dir_base: "/var/lib"
+# elixir_release_state_dir: "{{ elixir_release_dir_prefix }}"
+elixir_release_state_dir_mode: "0750"
+
+# Location for app cache data, under /var/cache
+elixir_release_cache_dir_base: "/var/cache"
+# elixir_release_cache_dir: "{{ elixir_release_dir_prefix }}"
+elixir_release_cache_dir_mode: "0750"
+
+# Location of app data files (obsolete)
+# elixir_release_data_dir: "{{ elixir_release_state_dir }}/data"
+
+# Location of app state files (obsolete)
+# elixir_release_state_dir: "{{ elixir_release_state_dir }}/state"
+
+# Location of app data files (obsolete)
+# elixir_release_var_dir: "/var/tmp/{{ elixir_release_dir_prefix }}"
+
+# Make additional paths accessible in chroot
+elixir_release_read_write_paths: []
+elixir_release_read_only_paths: []
+elixir_release_inaccessible_paths: []
+
+# Location of flag dir for systemd restart
+elixir_release_restart_flag_dir: "{{ elixir_release_deploy_dir }}/deploy"
+elixir_release_restart_flag_file: "{{ elixir_release_restart_flag_dir }}/restart.flag"
+
+# Location of flag dir for shutdown_flag module
+# elixir_release_shutdown_flag_dir: "/var/tmp/{{ elixir_release_deploy_user }}/{{ elixir_release_name }}"
+# elixir_release_shutdown_flag_dir: "{{ elixir_release_runtime_dir }}"
+elixir_release_shutdown_flag_dir: "{{ elixir_release_deploy_dir }}/deploy"
 elixir_release_shutdown_flag_file: "{{ app_shutdown_flag_dir }}/shutdown.flag"
 
 elixir_release_restart_method: systemctl
 # elixir_release_restart_method: touch
+# elixir_release_restart_method: systemd_flag
+
+elixir_release_chroot: false
+elixir_release_paranoia: false
 
 # Defaults
 # Open file limits
 elixir_release_limit_nofile: 65536
+
+# umask
+elixir_release_umask: "0027"
+
 # Seconds to wait between restarts
 elixir_release_systemd_restart_sec: 5
