@@ -102,7 +102,7 @@ Install Elixir libraries into the ASDF dir:
 ```shell
 mix local.hex --if-missing --force
 mix local.rebar --if-missing --force
-# mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez --if-missing --force
+# mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez --force
 ```
 
 Install node libraries into the ASDF dir:
