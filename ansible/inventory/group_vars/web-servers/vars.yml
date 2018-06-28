@@ -25,4 +25,5 @@ users_deploy_groups:
 # users_app_users:
 #   - jake
 
+# Database server host
 db_host: localhost
