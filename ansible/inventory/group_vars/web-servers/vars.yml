@@ -4,6 +4,10 @@
 users_app_user: "{{ elixir_release_app_user }}"
 users_app_group: "{{ elixir_release_app_user }}"
 
+# OS user account used to deploy the app
+users_deploy_user: "{{ elixir_release_deploy_user }}"
+users_deploy_group: "{{ elixir_release_deploy_user }}"
+
 # Defines secondary groups for the deploy user
 # This is needed if you are using a flag file to trigger
 # restarts, as the deploy user needs to be able to create a file
