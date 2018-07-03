@@ -25,10 +25,10 @@ elixir_release_http_listen_port: 4001
 iptables_http_app_port: "{{ elixir_release_http_listen_port }}"
 
 # Config dir
-elixir_release_conf_dir: "/etc/{{ elixir_release_name }}"
+elixir_release_conf_dir: "{{ elixir_release_name }}"
 
 # Path to conform conf file
-elixir_release_conform_conf_path: "{{ elixir_release_conf_dir }}/{{ elixir_release_name_code }}.conf"
+elixir_release_conform_conf_path: "{{ elixir_release_conf_dir_base }}/{{ elixir_release_conf_dir }}/{{ elixir_release_name_code }}.conf"
 
 # elixir_release_chroot: true
 # elixir_release_paranoia: true
