@@ -18,6 +18,10 @@ users_deploy_groups:
   # Allow deploy user to look at system logs with journalctl
   - systemd-journal
 
+# Users who can ssh into the deploy account
+# This is needed to run the build and deploy scripts
+users_deploy_users: "{{ users_global_admin_users }}"
+
 # Users who can ssh into the app account
 # This is not strictly needed, but can be useful for devs
 #
