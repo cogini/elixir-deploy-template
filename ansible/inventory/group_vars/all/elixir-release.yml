@@ -24,7 +24,10 @@ elixir_release_http_listen_port: 4001
 # Same as above, but configuring firewall
 iptables_http_app_port: "{{ elixir_release_http_listen_port }}"
 
-# Config dir
+# Config dir base
+elixir_release_conf_dir_base: "/etc"
+
+# Config dir under base (combined systemd)
 elixir_release_conf_dir: "{{ elixir_release_name }}"
 
 # Path to conform conf file
