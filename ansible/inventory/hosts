@@ -9,6 +9,7 @@ elixir-deploy-template-centos-7
 elixir-deploy-template-ubuntu-16
 elixir-deploy-template-ubuntu-18
 elixir-deploy-template-debian-9
+elixir-deploy-template-aws-web
 
 [build-servers]
 elixir-deploy-template-centos-7
@@ -28,6 +29,7 @@ elixir-deploy-template-debian-9
 elixir-deploy-template-ubuntu-16
 elixir-deploy-template-ubuntu-18
 elixir-deploy-template-debian-9
+elixir-deploy-template-aws-web
 
 [py3-hosts:vars]
 ansible_python_interpreter=/usr/bin/python3
