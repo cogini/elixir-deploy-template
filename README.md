@@ -345,7 +345,7 @@ Set up the server:
 ansible-playbook -u root -v -l build-servers playbooks/setup-build.yml -D
 ```
 
-This sets up the build environment, e.g. install ASDF.
+This sets up the build environment, e.g. installing ASDF.
 
 Install PostgreSQL, assuming we are running the web app on the same server.
 ```shell
@@ -371,8 +371,8 @@ cd ~/build/deploy-template
 
 The `-A` flag on the ssh command gives the session on the server access to your
 local ssh keys. If your local user can access a GitHub repo, then the server
-can do it, without having to put keys on the server. Similarly, if your ssh key
-is on the prod server, then you can push code from the build server using
+can do it, without having to put keys on the server. Similarly, if the prod
+server is set up to accept your ssh key, then you can push code from the build server using
 Ansible without the web server needing to trust the build server.
 
 If you are using a CI server to build and deploy code, then it runs in the
@@ -393,7 +393,6 @@ echo "Pulling latest code from git"
 git pull
 
 echo "Updating versions of Erlang/Elixir/Node.js if necessary"
-asdf install
 asdf install
 
 echo "Updating Elixir libs"
@@ -512,7 +511,7 @@ ansible-playbook -u deploy -v -l web-servers playbooks/deploy-app.yml --tags dep
 
 Ansible has a [vault](http://docs.ansible.com/ansible/2.5/user_guide/vault.html) function
 which you can use to store keys. It automates the process of encrypting
-variable data so you can check it into source control, so only people with the
+variable data so you can check it into source control, and only people with the
 password can read it.
 
 There are trade-offs in managing secrets.
@@ -524,8 +523,9 @@ directly from your dev machine to the web servers. If you are using a 3rd-party
 CI server, then that goes double. You don't want to give the CI service access
 to your production keys.
 
-For secure applications like health care, developers should not have access to
-the prod environment. You can restrict vault password access to your ops team,
+For secure applications like health care, we want to minimize the number of
+people who have access to the prod environment and sensitive customer data.
+You can restrict vault password access to your ops team,
 or use different keys for different environments.
 
 You can also set up a build/deploy server in the cloud which has access to the
