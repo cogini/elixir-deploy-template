@@ -8,19 +8,24 @@
 elixir-deploy-template-centos-7
 elixir-deploy-template-ubuntu-16
 elixir-deploy-template-ubuntu-18
+elixir-deploy-template-ubuntu-18-big
 elixir-deploy-template-debian-9
 elixir-deploy-template-aws-web
+elixir-deploy-template-buildroot
 
 [build-servers]
 elixir-deploy-template-centos-7
 elixir-deploy-template-ubuntu-16
 elixir-deploy-template-ubuntu-18
+elixir-deploy-template-ubuntu-18-big
 elixir-deploy-template-debian-9
+jake-build
 
 [db-servers]
 elixir-deploy-template-centos-7
 elixir-deploy-template-ubuntu-16
 elixir-deploy-template-ubuntu-18
+elixir-deploy-template-ubuntu-18-big
 elixir-deploy-template-debian-9
 
 # If you are running newer Ubuntu or Debian, add it here to specify that
@@ -28,8 +33,11 @@ elixir-deploy-template-debian-9
 [py3-hosts]
 elixir-deploy-template-ubuntu-16
 elixir-deploy-template-ubuntu-18
+elixir-deploy-template-ubuntu-18-big
 elixir-deploy-template-debian-9
 elixir-deploy-template-aws-web
+elixir-deploy-template-buildroot
+jake-build
 
 [py3-hosts:vars]
 ansible_python_interpreter=/usr/bin/python3

@@ -54,10 +54,10 @@ RootDirectory={{ elixir_release_deploy_dir }}
 ReadWritePaths={{ elixir_release_read_write_paths | join(' ') }}
 {% endif %}
 {% if elixir_release_read_only_paths | length > 1 %}
-ReadWritePaths={{ elixir_release_read_only_paths | join(' ') }}
+ReadOnlyPaths={{ elixir_release_read_only_paths | join(' ') }}
 {% endif %}
 {% if elixir_release_inaccessible_paths | length > 1 %}
-ReadWritePaths={{ elixir_release_inaccessible_paths | join(' ') }}
+InaccessiblePaths={{ elixir_release_inaccessible_paths | join(' ') }}
 {% endif %}
 {% endif %}
 {% if elixir_release_paranoia %}
