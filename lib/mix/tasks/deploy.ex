@@ -117,7 +117,7 @@ defmodule Mix.Tasks.Deploy.Local.Rollback do
   @shortdoc "Roll back to previous release"
 
   @moduledoc """
-  This task updates the current symlink to point to the previous release directory. 
+  This task updates the current symlink to point to the previous release directory.
   """
 
   use Mix.Task

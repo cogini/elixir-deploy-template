@@ -12,6 +12,18 @@ defmodule DeployTemplate.Mixfile do
       aliases: aliases(),
       deps: deps(),
       deploy_dir: "/opt/myorg/deploy-template/",
+      mix_systemd: [
+        # Enable restart from flag file
+        restart_flag: true,
+        # Enable conform config file
+        conform: true,
+        # Enable chroot
+        chroot: true,
+        # Enable extra restrictions
+        paranoia: true,
+
+        base_path: "/opt/myorg/deploy-template",
+      ],
     ]
   end
 
@@ -45,6 +57,7 @@ defmodule DeployTemplate.Mixfile do
       {:cowboy, "~> 1.0"},
       {:conform, "~> 2.2"},
       {:shutdown_flag, github: "cogini/shutdown_flag"},
+      {:mix_systemd, github: "cogini/mix_systemd"},
     ]
   end
 
